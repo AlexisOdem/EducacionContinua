@@ -93,23 +93,26 @@ export function PerHour({ data, h = 300 }) {
   )
 }
 
-/* 1c — jitter de precios: cada punto es un programa */
+/* 1c — distribución de precios: cada punto es un programa. HTML con posiciones en % (antes ~700 símbolos de Recharts, lo más pesado de la página). */
+const JDOM = [80, 20000], JTICKS = [100, 200, 500, 1000, 2000, 5000, 10000]
+const jy = v => Math.min(100, Math.max(0, 100 - 100 * (Math.log(v) - Math.log(JDOM[0])) / (Math.log(JDOM[1]) - Math.log(JDOM[0]))))
 export function Jitter({ points, unis, h = 380 }) {
-  const meds = UNIS.map((u, i) => ({ i, u, ia: unis.find(x => x.u === u)?.medIA, no: unis.find(x => x.u === u)?.medNo }))
+  const n = UNIS.length, xp = x => 100 * (x + 0.5) / n
+  const med = UNIS.map((u, i) => { const x = unis.find(k => k.u === u); return { u, i, ia: x?.medIA, no: x?.medNo } })
+  const bar = (m, v, tint) => v != null && <i key={m.u + (tint ? 'n' : 'i')} title={`${m.u} · mediana ${tint ? 'sin' : 'con'} IA ${S(v)}`} className="absolute h-[3px] -translate-y-1/2 z-[3] rounded-full" style={{ left: `${xp(m.i - 0.36)}%`, width: `${72 / n}%`, top: `${jy(v)}%`, background: col(m.u, tint) }} />
   return (
-    <ResponsiveContainer width="100%" height={h}>
-      <ScatterChart margin={{ left: 0, right: 20, top: 10, bottom: 4 }}>
-        <CartesianGrid stroke={C.line} vertical={false} />
-        <XAxis type="number" dataKey="x" domain={[-0.5, UNIS.length - 0.5]} ticks={UNIS.map((_, i) => i)} tickFormatter={i => UNIS[i]} tickLine={false} axisLine={false} tick={({ x, y, payload }) => <text x={x} y={y} dy={14} textAnchor="middle" fontSize={12} fontWeight={500} fill={isUsil(UNIS[payload.value]) ? C.usil : C.ink2}>{UNIS[payload.value]}</text>} />
-        <YAxis type="number" dataKey="y" scale="log" domain={[80, 20000]} ticks={[100, 200, 500, 1000, 2000, 5000, 10000]} tickFormatter={S} width={84} tickLine={false} axisLine={false} />
-        <ZAxis range={[36, 36]} />
-        <Tooltip {...tip} cursor={false} content={({ payload }) => payload?.length ? <div style={tip.contentStyle} className="px-3 py-2 max-w-[280px]"><div className="font-semibold">{payload[0].payload.u} · {payload[0].payload.ia ? 'con IA' : 'sin IA'}</div><div>{payload[0].payload.n}</div><div>{S(payload[0].payload.y)} · {payload[0].payload.t}</div></div> : null} />
-        {meds.map(m => m.no && <ReferenceLine key={m.u + 'n'} segment={[{ x: m.i - 0.36, y: m.no }, { x: m.i + 0.36, y: m.no }]} stroke={col(m.u, true)} strokeWidth={3} />)}
-        {meds.map(m => m.ia && <ReferenceLine key={m.u + 'i'} segment={[{ x: m.i - 0.36, y: m.ia }, { x: m.i + 0.36, y: m.ia }]} stroke={col(m.u)} strokeWidth={3} />)}
-        {UNIS.map(u => <Scatter key={u + 'n'} isAnimationActive={false} data={points.filter(p => p.u === u && !p.ia)} fill={col(u, true)} fillOpacity={0.55} />)}
-        {UNIS.map(u => <Scatter key={u + 'i'} isAnimationActive={false} data={points.filter(p => p.u === u && p.ia)} fill={col(u)} fillOpacity={0.9} stroke="#fff" strokeWidth={1} />)}
-      </ScatterChart>
-    </ResponsiveContainer>
+    <div className="grid grid-cols-[76px_minmax(0,1fr)] text-[12px] pt-2">
+      <div className="relative" style={{ height: h }}>{JTICKS.map(v => <span key={v} className="absolute right-3 -translate-y-1/2 text-ink2 whitespace-nowrap tabular-nums" style={{ top: `${jy(v)}%` }}>{S(v)}</span>)}</div>
+      <div className="min-w-0">
+        <div className="relative" style={{ height: h }}>
+          {JTICKS.map(v => <i key={v} className="absolute left-0 right-0 h-px bg-line" style={{ top: `${jy(v)}%` }} />)}
+          {points.map((p, k) => <span key={k} title={`${p.u} · ${p.ia ? 'con IA' : 'sin IA'} · ${S(p.y)} · ${p.n}`} className="absolute w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ left: `${xp(p.x)}%`, top: `${jy(p.y)}%`, background: col(p.u, !p.ia), opacity: p.ia ? 0.95 : 0.6, zIndex: p.ia ? 2 : 1, boxShadow: p.ia ? '0 0 0 1px #fff' : 'none' }} />)}
+          {med.flatMap(m => [bar(m, m.no, true), bar(m, m.ia, false)])}
+        </div>
+        <div className="grid mt-2" style={{ gridTemplateColumns: `repeat(${n}, minmax(0,1fr))` }}>{UNIS.map(u => <span key={u} className={`text-center font-medium ${isUsil(u) ? 'text-usil' : 'text-ink2'}`}>{u}</span>)}</div>
+      </div>
+    </div>
   )
 }
 
@@ -192,25 +195,35 @@ export function Premium({ data, h = 300 }) {
   )
 }
 
-/* Líneas sin base suficiente se muestran rayadas (no suman a la cifra de la universidad). n=1 va en tono atenuado. */
-export function PremiumLinea({ data, minNo, h = 320 }) {
-  const d = data.map(x => ({ ...x, v: x.ok ? clamp(x.prem) : null, na: x.ok ? null : [-100, 100], lbl: x.ok ? fmtP(x.prem) : '', nalbl: x.ok ? '' : `base insuficiente · ${x.nNo} sin IA` }))
+/* 3b — escalera de precio por línea: USIL sin IA (tinte) → USIL con IA (azul) → competidores con IA (gris). Escala log. */
+const LOG = [100, 20000], lx = v => 100 * (Math.log(v) - Math.log(LOG[0])) / (Math.log(LOG[1]) - Math.log(LOG[0]))
+export function PriceLadder({ data }) {
+  if (!data.length) return <div className="h-[280px] flex items-center justify-center text-muted text-sm">USIL no comparte líneas con IA y precio con competidores en este filtro</div>
+  const dot = (v, bg, border, t) => v != null && <span title={t} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full" style={{ left: `${lx(v)}%`, background: bg, border: border ? `2px solid ${border}` : 0 }} />
   return (
-    <ResponsiveContainer width="100%" height={Math.max(h, d.length * 26 + 40)}>
-      <BarChart data={d} layout="vertical" margin={{ left: 0, right: 56, top: 4, bottom: 4 }} barCategoryGap={6}>
-        <Hatch />
-        {grid}
-        {divAxis}
-        <YAxis type="category" dataKey="l" width={190} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: C.ink2 }} tickFormatter={v => v.length > 26 ? v.slice(0, 24).trimEnd() + '…' : v} />
-        <Tooltip {...tip} formatter={(_, __, p) => { const x = p.payload; return [x.ok ? `${x.lbl} · con IA ${S(x.pIA)} (n=${x.nIA}) · sin IA ${S(x.pNo)} (n=${x.nNo})` : `base insuficiente: ${x.nNo} cursos sin IA con precio (se piden ${minNo})${x.refPct != null ? ` · referencial ${fmtP(x.refPct)}` : ''}`, x.l] }} />
-        <Bar isAnimationActive={false} dataKey="na" barSize={14} fill="url(#hatch)"><LabelList dataKey="nalbl" position="insideLeft" style={naLabel} /></Bar>
-        <Bar isAnimationActive={ANIM} dataKey="v" barSize={14} radius={3} minPointSize={2}>
-          {d.map(x => <Cell key={x.l} fill={(x.prem ?? 0) >= 0 ? C.usil : C.usilT} fillOpacity={x.nIA === 1 ? 0.55 : 1} />)}
-          <LabelList dataKey="v" content={endLabel(d)} />
-        </Bar>
-        <ReferenceLine x={0} stroke={C.ink} />
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="text-[12px]">
+      {data.map(x => {
+        const vs = [x.usilNo, x.usilIA, x.mkt].filter(v => v != null), a = lx(Math.min(...vs)), b = lx(Math.max(...vs))
+        return (
+          <div key={x.l} className="grid grid-cols-[190px_minmax(0,1fr)_52px] gap-3 items-center h-[30px]" title={`${x.l} · USIL sin IA ${x.usilNo != null ? S(x.usilNo) + ` (${x.nNo})` : 'base < 5'} · USIL con IA ${S(x.usilIA)} (${x.nU}) · competidores con IA ${S(x.mkt)} (${x.nC})`}>
+            <span className="text-right text-ink2 truncate">{x.l}</span>
+            <span className="relative h-full">
+              {[100, 500, 1000, 5000, 10000].map(v => <i key={v} className="absolute top-0 bottom-0 w-px bg-line" style={{ left: `${lx(v)}%` }} />)}
+              <i className="absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full" style={{ left: `${a}%`, width: `${b - a}%`, background: x.gap <= -50 ? C.gold : C.compT }} />
+              {dot(x.usilNo, '#fff', C.usilT, `USIL sin IA ${S(x.usilNo)}`)}
+              {dot(x.mkt, C.comp, null, `Competidores con IA ${S(x.mkt)}`)}
+              {dot(x.usilIA, C.usil, null, `USIL con IA ${S(x.usilIA)}`)}
+            </span>
+            <span className={`text-right font-semibold tabular-nums ${x.gap <= -50 ? 'text-accent' : 'text-ink2'}`}>{x.gap > 0 ? '+' : ''}{x.gap}%</span>
+          </div>
+        )
+      })}
+      <div className="grid grid-cols-[190px_minmax(0,1fr)_52px] gap-3 mt-1 text-muted">
+        <span />
+        <span className="relative h-4">{[100, 500, 1000, 5000, 10000].map(v => <span key={v} className="absolute -translate-x-1/2 whitespace-nowrap" style={{ left: `${lx(v)}%` }}>{v >= 1000 ? `S/ ${v / 1000}k` : S(v)}</span>)}</span>
+        <span />
+      </div>
+    </div>
   )
 }
 
@@ -354,44 +367,63 @@ const Bubble = ({ a, n }) => <span title={a.title} className="w-8 h-8 shrink-0 r
 export function ActionMatrix({ actions }) {
   const cell = (op, dif) => actions.map((a, i) => ({ a, i })).filter(({ a }) => LV[a.oportunidad] === op && LV[a.dificultad] === dif)
   return (
-    <div className="grid grid-cols-[28px_repeat(3,1fr)] grid-rows-[repeat(3,72px)_24px] gap-1 text-xs text-ink2">
-      {[3, 2, 1].flatMap(op => [
-        <span key={'y' + op} className="flex items-center justify-center [writing-mode:vertical-rl] rotate-180">{['', 'Baja', 'Media', 'Alta'][op]}</span>,
-        ...[1, 2, 3].map(dif => (
-          <div key={op + '-' + dif} className={`rounded-md flex flex-wrap items-center justify-center gap-1.5 ${op === 3 && dif < 3 ? 'bg-gold-soft' : 'bg-bg'}`}>
-            {cell(op, dif).map(({ a, i }) => <Bubble key={i} a={a} n={i + 1} />)}
-          </div>
-        )),
-      ])}
-      <span />{['Baja', 'Media', 'Alta'].map(t => <span key={t} className="text-center self-end">{t}</span>)}
+    <div className="grid grid-cols-[26px_minmax(0,1fr)] gap-2">
+      <div className="flex items-center justify-center"><span className="[writing-mode:vertical-rl] rotate-180 text-[13px] font-semibold text-usil-deep whitespace-nowrap">Tamaño de la oportunidad ↑</span></div>
+      <div>
+        <div className="grid grid-cols-[40px_repeat(3,1fr)] grid-rows-[repeat(3,72px)_22px] gap-1 text-xs text-ink2">
+          {[3, 2, 1].flatMap(op => [
+            <span key={'y' + op} className="flex items-center justify-end pr-1">{['', 'Baja', 'Media', 'Alta'][op]}</span>,
+            ...[1, 2, 3].map(dif => (
+              <div key={op + '-' + dif} className={`rounded-md flex flex-wrap items-center justify-center gap-1.5 ${op === 3 && dif < 3 ? 'bg-gold-soft' : 'bg-bg'}`}>
+                {cell(op, dif).map(({ a, i }) => <Bubble key={i} a={a} n={i + 1} />)}
+              </div>
+            )),
+          ])}
+          <span />{['Baja', 'Media', 'Alta'].map(t => <span key={t} className="text-center self-end">{t}</span>)}
+        </div>
+        <div className="text-center text-[13px] font-semibold text-usil-deep mt-1.5 pl-10">Dificultad de implementación →</div>
+      </div>
     </div>
   )
 }
 
-const Meter = ({ label, level, good, why }) => (
-  <div className="flex items-center gap-2 text-xs cursor-help" title={why}>
-    <span className="w-20 text-ink2">{label}</span>
-    <span className="flex gap-0.5">{[1, 2, 3].map(k => <i key={k} className="w-4 h-2 rounded-sm" style={{ background: k <= LV[level] ? (good ? C.usil : (LV[level] === 3 ? C.gold : C.comp)) : C.line }} />)}</span>
-    <span className="text-ink2">{level}</span>
+const Meter = ({ label, level, good }) => (
+  <div className="flex items-center gap-3 text-[13px]">
+    <span className="w-24 text-ink2">{label}</span>
+    <span className="flex gap-1">{[1, 2, 3].map(k => <i key={k} className="w-7 h-3 rounded-sm" style={{ background: k <= LV[level] ? (good ? C.usil : (LV[level] === 3 ? C.gold : C.comp)) : C.line }} />)}</span>
+    <span className="font-semibold text-ink">{level}</span>
   </div>
 )
 
-export function ActionCard({ a, i }) {
+/* Una acción por fila: cabecera grande con medidores y variables; al desplegar, el porqué de cada etiqueta. */
+export function ActionRow({ a, i }) {
+  const whys = [['Oportunidad', a.oportunidad, a.oportunidad_why], ['Riesgo', a.riesgo, a.riesgo_why], ['Dificultad', a.dificultad, a.dificultad_why]]
   return (
-    <div className="bg-surface rounded-lg border border-line p-4 h-full flex flex-col gap-3">
-      <div className="flex items-start gap-3">
-        <Bubble a={a} n={i + 1} />
-        <div>
-          <h3 className="text-[16px] leading-tight m-0">{a.title}</h3>
-          <p className="text-[12.5px] text-ink2 m-0 mt-1">{a.detail}</p>
+    <details className="group bg-surface rounded-lg border border-line">
+      <summary className="list-none cursor-pointer grid lg:grid-cols-[minmax(0,1fr)_280px_240px_24px] gap-6 items-center p-6 hover:bg-usil-wash/60 transition-colors duration-150 rounded-lg">
+        <div className="flex items-start gap-4 min-w-0">
+          <span className="w-12 h-12 shrink-0 rounded-full grid place-items-center font-display text-2xl font-semibold" style={{ background: RISK[LV[a.riesgo]], color: riskInk(LV[a.riesgo]) }}>{i + 1}</span>
+          <div className="min-w-0">
+            <h3 className="text-[22px] leading-tight m-0">{a.title}</h3>
+            <p className="text-[14px] text-ink2 m-0 mt-1.5">{a.detail}</p>
+          </div>
         </div>
+        <div className="flex flex-col gap-2">
+          <Meter label="Oportunidad" level={a.oportunidad} good />
+          <Meter label="Riesgo" level={a.riesgo} />
+          <Meter label="Dificultad" level={a.dificultad} />
+        </div>
+        <div className="flex flex-wrap gap-1.5">{a.variables.map(v => <span key={v} className="px-2.5 py-1 rounded-full bg-usil-wash text-usil-deep text-[12px]">{v}</span>)}</div>
+        <svg viewBox="0 0 24 24" className="w-6 h-6 text-muted transition-transform duration-200 group-open:rotate-180" aria-hidden><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" /></svg>
+      </summary>
+      <div className="grid md:grid-cols-3 gap-6 px-6 pb-6 pt-4 border-t border-line">
+        {whys.map(([k, lvl, why]) => (
+          <div key={k}>
+            <div className="text-[12px] font-semibold text-usil-deep mb-1">{k} · {lvl}</div>
+            <p className="text-[13px] text-ink2 m-0 leading-relaxed">{why}</p>
+          </div>
+        ))}
       </div>
-      <div className="flex flex-col gap-1">
-        <Meter label="Oportunidad" level={a.oportunidad} why={a.oportunidad_why} good />
-        <Meter label="Riesgo" level={a.riesgo} why={a.riesgo_why} />
-        <Meter label="Dificultad" level={a.dificultad} why={a.dificultad_why} />
-      </div>
-      <div className="flex flex-wrap gap-1.5 mt-auto">{a.variables.map(v => <span key={v} className="px-2 py-0.5 rounded-full bg-usil-wash text-usil-deep text-[11.5px]">{v}</span>)}</div>
-    </div>
+    </details>
   )
 }

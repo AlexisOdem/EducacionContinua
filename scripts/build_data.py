@@ -73,7 +73,9 @@ def precio_lista(txt):
     if not txt: return None
     nums = [float(n.replace(',', '')) for n in re.findall(r'(\d[\d,]*\.?\d*)', txt)]
     nums = [n for n in nums if n >= 50]
-    return max(nums) if nums else None
+    if not nums: return None
+    m = re.search(r'(\d+(?:\.\d+)?)\s*%\s*desc', txt, re.I)  # 'S/ 1,260 (30% desc.)' -> precio de lista 1,800
+    return round(max(nums) / (1 - float(m.group(1)) / 100)) if m else max(nums)
 
 # ---------- carga ----------
 rows = []
@@ -97,6 +99,7 @@ json.dump(data, open(OUT, 'w', encoding='utf-8'), ensure_ascii=False, separators
 
 if __name__ == '__main__':
     assert precio_lista('S/ 320 (comunidad) / S/ 400 (público)') == 400
+    assert precio_lista('S/ 1,260 (30% desc.)') == 1800
     assert horas('16 semanas (128 horas)') == 128
     assert clasificar('IA para la Gestión del Talento', '') == 'Talento y RRHH'
     assert tipo({'tipo_programa': 'Curso de Especialización', 'nombre': 'x'}, 24) == 'Curso corto'

@@ -63,7 +63,21 @@ export function premiumUni(rows, u) {
   return { u, prem: why ? null : Math.round(wavg(ls.map(x => ({ v: x.prem, w: x.nIA })))), why, nComp, nIA, nLineas: ls.length }
 }
 export const premiumByUni = tipo => UNIS.map(u => premiumUni(filt(tipo), u))
-export const premiumByLinea = (tipo, u = 'USIL') => premiumLineas(filt(tipo), u)
+
+/* 3b — escalera de precio por línea × tipo (medianas): USIL sin IA → USIL con IA → competidores con IA.
+   Solo celdas donde USIL y al menos un competidor venden IA con precio. gap = USIL con IA frente a competidores con IA. */
+export function escalera(rows) {
+  const out = []
+  LINEAS.forEach(l => TIPOS.forEach(t => {
+    const rs = rows.filter(r => r.l === l && r.t === t && r.p)
+    const uIA = rs.filter(r => isUsil(r.u) && r.ia).map(r => r.p), uNo = rs.filter(r => isUsil(r.u) && !r.ia).map(r => r.p)
+    const cIA = rs.filter(r => !isUsil(r.u) && r.ia).map(r => r.p)
+    if (!uIA.length || !cIA.length) return
+    out.push({ l: t === TIPOS[0] ? l : `${l} · largo`, usilNo: uNo.length >= MIN_NO ? median(uNo) : null, usilIA: median(uIA), mkt: median(cIA),
+      nNo: uNo.length, nU: uIA.length, nC: cIA.length, gap: Math.round(100 * (median(uIA) / median(cIA) - 1)) })
+  }))
+  return out.sort((a, b) => a.gap - b.gap)
+}
 
 export function heat(rows) {
   return LINEAS.map(l => {

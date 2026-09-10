@@ -1,7 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'motion/react'
-import { TIPOS, S, filt, byUni, mercado, premiumByUni, premiumByLinea, heat, grupos, pricePoints, formatos, cuotaLineas, FECHA, RANKING_FUENTE, MIN_NO, MIN_IA } from './stats'
-import { Reveal, Counter, Segmented, Legend, Prevalence, PerHour, Jitter, Mapa, Butterfly, Dumbbell, Premium, PremiumLinea, Heat, GroupTable, ActionMatrix, ActionCard, RISK, C } from './charts'
+import { TIPOS, S, filt, byUni, mercado, premiumByUni, escalera, heat, grupos, pricePoints, formatos, cuotaLineas, FECHA, RANKING_FUENTE, MIN_IA } from './stats'
+import * as CH from './charts'
+const { Reveal, Counter, Segmented, Legend, ActionRow, RISK, C } = CH
+// Gráficos memorizados: un cambio de estado que no les toca (vista del mapa, modo del mapa de calor, filtro de la tabla) no los vuelve a dibujar.
+const [Prevalence, PerHour, Jitter, Mapa, Butterfly, Dumbbell, Premium, PriceLadder, Heat, GroupTable, ActionMatrix] =
+  [CH.Prevalence, CH.PerHour, CH.Jitter, CH.Mapa, CH.Butterfly, CH.Dumbbell, CH.Premium, CH.PriceLadder, CH.Heat, CH.GroupTable, CH.ActionMatrix].map(c => memo(c))
 import { ACCIONES, VARIABLES } from './acciones'
 
 const TIPO_OPTS = ['Todos', ...TIPOS]
@@ -39,22 +43,36 @@ const Kpi = ({ label, value, sub, delay = 0, format }) => (
   </motion.div>
 )
 
-function useActiveSection() {
+/* Scroll: la barra de progreso y la sección activa tienen su propio estado (y la barra ni siquiera usa estado: escribe el estilo directo).
+   Antes vivían en App y cada píxel de scroll volvía a dibujar los 8 gráficos. */
+const onScrollFrame = fn => {
+  let raf = 0
+  const h = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; fn() }) }
+  fn(); addEventListener('scroll', h, { passive: true }); addEventListener('resize', h)
+  return () => { removeEventListener('scroll', h); removeEventListener('resize', h); cancelAnimationFrame(raf) }
+}
+function ProgressBar() {
+  const ref = useRef(null)
+  useEffect(() => onScrollFrame(() => { if (ref.current) ref.current.style.transform = `scaleY(${Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight))})` }), [])
+  return <div ref={ref} className="hidden lg:block absolute left-0 top-0 w-1 h-full bg-gold origin-top" style={{ transform: 'scaleY(0)' }} aria-hidden />
+}
+function SideNav() {
   const [active, setActive] = useState('p1')
-  const [progress, setProgress] = useState(0)
-  useEffect(() => {
-    // activa = última sección cuyo título ya pasó el 40% del alto de la ventana; progreso = avance del scroll
-    const onScroll = () => {
-      const line = innerHeight * 0.4
-      let cur = SECTIONS[0][0]
-      SECTIONS.forEach(([id]) => { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top <= line) cur = id })
-      setActive(cur)
-      setProgress(Math.min(1, scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)))
-    }
-    onScroll(); addEventListener('scroll', onScroll, { passive: true })
-    return () => removeEventListener('scroll', onScroll)
-  }, [])
-  return [active, progress]
+  useEffect(() => onScrollFrame(() => {
+    const line = innerHeight * 0.4
+    let cur = SECTIONS[0][0]
+    SECTIONS.forEach(([id]) => { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top <= line) cur = id })
+    setActive(cur)
+  }), [])
+  return (
+    <nav className="hidden lg:block" aria-label="Secciones">
+      {SECTIONS.map(([id, t], i) => (
+        <a key={id} href={`#${id}`} className={`flex items-baseline gap-3 py-2 text-[13px] no-underline border-l-2 pl-3 -ml-px transition-colors duration-150 ${active === id ? 'border-gold text-white' : 'border-transparent text-white/60 hover:text-white'}`}>
+          <span className="font-display text-base w-4">{i + 1}</span><span>{t}</span>
+        </a>
+      ))}
+    </nav>
+  )
 }
 
 export default function App() {
@@ -63,7 +81,6 @@ export default function App() {
   const [view, setView] = useState(q.get('view') === 'B' ? 'B' : 'A')
   const [heatMode, setHeatMode] = useState('n')
   const [soloBrechas, setSoloBrechas] = useState('Todos')
-  const [active, progress] = useActiveSection()
 
   const rows = useMemo(() => filt(tipo), [tipo])
   const unis = useMemo(() => byUni(rows), [rows])
@@ -75,26 +92,20 @@ export default function App() {
   const cuota = useMemo(() => cuotaLineas(rows), [rows])
   const heatRows = useMemo(() => heat(rows), [rows])
   const gs = useMemo(() => grupos(rows), [rows])
-  const brechas = gs.filter(g => !g.nUsil && g.k)
+  const brechas = useMemo(() => gs.filter(g => !g.nUsil && g.k), [gs])
   const premUni = useMemo(() => premiumByUni(tipo), [tipo])
-  const premLinea = useMemo(() => premiumByLinea(tipo), [tipo])
+  const ladder = useMemo(() => escalera(rows), [rows])
 
   return (
     <div className="lg:grid lg:grid-cols-[240px_1fr] min-h-dvh">
       {/* Barra lateral: marca, navegación por secciones y filtro global */}
       <aside className="relative lg:sticky lg:top-0 lg:h-dvh bg-usil-deep text-white px-5 py-5 flex flex-col gap-5">
-        <div className="hidden lg:block absolute left-0 top-0 w-1 h-full bg-gold origin-top transition-transform duration-300 ease-out" style={{ transform: `scaleY(${progress})` }} aria-hidden />
+        <ProgressBar />
         <div>
           <div className="font-semibold leading-tight">USIL · Educación Continua</div>
           <div className="text-xs text-white/60 mt-1">Benchmark IA · {FECHA}</div>
         </div>
-        <nav className="hidden lg:block" aria-label="Secciones">
-          {SECTIONS.map(([id, t], i) => (
-            <a key={id} href={`#${id}`} className={`flex items-baseline gap-3 py-2 text-[13px] no-underline border-l-2 pl-3 -ml-px transition-colors duration-150 ${active === id ? 'border-gold text-white' : 'border-transparent text-white/60 hover:text-white'}`}>
-              <span className="font-display text-base w-4">{i + 1}</span><span>{t}</span>
-            </a>
-          ))}
-        </nav>
+        <SideNav />
         <div>
           <div className="text-[11px] uppercase tracking-wide text-white/50 mb-2">Tipo de curso</div>
           <div className="flex flex-wrap gap-1.5">
@@ -162,9 +173,9 @@ export default function App() {
             <Legend items={[[C.usil, 'La IA cuesta más'], [C.usilT, 'La IA cuesta menos'], ['hatch', 'Sin dato comparable']]} />
             <Premium data={premUni} />
           </Panel></Reveal>
-          <Reveal delay={0.1}><Panel title="Por línea de carrera en USIL" caption={`Mediana con IA frente a mediana sin IA, misma línea y mismo tipo. Se piden ${MIN_NO}+ cursos sin IA. Escala ±100%. Tono atenuado = 1 curso IA.`}>
-            <Legend items={[[C.usil, 'La IA cuesta más'], [C.usilT, 'La IA cuesta menos'], ['hatch', 'Base insuficiente']]} />
-            {premLinea.length ? <PremiumLinea data={premLinea} minNo={MIN_NO} /> : <div className="h-[320px] flex items-center justify-center text-muted text-sm">Sin cursos con IA en este tipo</div>}
+          <Reveal delay={0.1}><Panel title="Precio del curso IA por línea: USIL frente a competidores" caption="Medianas por línea y tipo, escala logarítmica. Etiqueta = USIL con IA frente a competidores con IA; dorado = 50%+ por debajo.">
+            <Legend items={[[C.usilT, 'USIL sin IA'], [C.usil, 'USIL con IA'], [C.comp, 'Competidores con IA']]} />
+            <PriceLadder data={ladder} />
           </Panel></Reveal>
         </div>
 
@@ -185,7 +196,7 @@ export default function App() {
         {/* 6 */}
         <SectionTitle id="p6" n="6">Cinco acciones</SectionTitle>
         <div className="grid lg:grid-cols-[2fr_3fr] gap-4 mb-4">
-          <Reveal minH={320}><Panel title="Priorización" caption="Eje vertical: tamaño de la oportunidad. Eje horizontal: dificultad. Zona dorada = empezar aquí.">
+          <Reveal minH={320}><Panel title="Priorización" caption="Zona dorada = empezar aquí. Color = riesgo de implementación.">
             <Legend items={[[RISK[1], 'Riesgo bajo'], [RISK[2], 'Riesgo medio'], [RISK[3], 'Riesgo alto']]} />
             <ActionMatrix actions={ACCIONES} />
           </Panel></Reveal>
@@ -203,8 +214,8 @@ export default function App() {
             </div>
           </Panel></Reveal>
         </div>
-        <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-4 mb-12">
-          {ACCIONES.map((a, i) => <Reveal key={a.title} minH={200} delay={i * 0.08}><ActionCard a={a} i={i} /></Reveal>)}
+        <div className="flex flex-col gap-3 mb-12">
+          {ACCIONES.map((a, i) => <Reveal key={a.title} minH={120} delay={i * 0.06}><ActionRow a={a} i={i} /></Reveal>)}
         </div>
 
         <footer className="text-xs text-muted pb-8">Catálogos públicos al {FECHA} · posgrado excluido · precio de lista público general · {RANKING_FUENTE}</footer>
