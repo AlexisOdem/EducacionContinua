@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* Tokens semánticos. Marca USIL: azul institucional #002F6C, azul de datos #1D5FA8, dorado #FFC72C. */
+@theme {
+  --font-display: "Newsreader", Georgia, serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Roboto, sans-serif;
+  --color-bg: #F3F5F9;
+  --color-surface: #FFFFFF;
+  --color-ink: #16202B;
+  --color-ink2: #4B5866;
+  --color-muted: #7C8894;
+  --color-line: #E1E6EC;
+  --color-usil: #1D5FA8;
+  --color-usil-deep: #002F6C;
+  --color-usil-tint: #B9CFEA;
+  --color-usil-wash: #EAF1FA;
+  --color-comp: #66717F;
+  --color-comp-tint: #CFD5DC;
+  --color-gold: #FFC72C;
+  --color-gold-soft: #FFF3C4;
+  --color-gold-ink: #7A5200;
+}
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+h1, h2, h3, .num { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; }
+.num { font-variant-numeric: tabular-nums; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--color-usil); outline-offset: 2px; }
+.recharts-cartesian-axis-tick text { fill: var(--color-ink2); font-size: 12px; }
+.recharts-text.recharts-label { fill: var(--color-ink2); }
