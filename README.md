@@ -14,7 +14,13 @@ Regenerar datos (lee `../00_Data/raw/programas_*.json`):
 python scripts/build_data.py
 ```
 
-Deploy en Vercel: `npx vercel --prod` desde esta carpeta (framework Vite detectado automáticamente), o importar el repo en vercel.com con Root Directory = `app`.
+Sitio publicado: https://alexisodem.github.io/EducacionContinua/ (GitHub Pages; se compila solo con `.github/workflows/deploy.yml` en cada push a `main`).
+
+Para publicar cambios desde el repositorio privado (donde viven `00_Data/` y las notas), desde la raíz:
+
+```bash
+git subtree push --prefix=app alexisodem main
+```
 
 Parámetros de URL: `?tipo=Curso%20corto` o `?tipo=Especialización%20y%20diplomado`, `?view=B`, `?static` (todo montado y sin animaciones, para capturas o PDF).
 
