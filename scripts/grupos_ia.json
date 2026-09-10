@@ -1,0 +1,304 @@
+{
+ "fuente": "Agrupación por similitud de producto (3 agrupaciones independientes, consolidadas y verificadas), 2026-09-10",
+ "groups": [
+  {
+   "name": "IA en salud",
+   "description": "IA para diagnóstico clínico, medicina de precisión, atención médica, telesalud y psicología. Continental (4) y UPC (1). USIL no tiene cursos en este grupo.",
+   "urls": [
+    "https://continua.edu.pe/ia-en-la-medicina-humana/",
+    "https://continua.edu.pe/taller-de-verano-ia-generativa-psicologia/",
+    "https://continua.edu.pe/taller-verano-ia-en-salud/",
+    "https://continua.edu.pe/ecpro-programa-ejecutivo-salud-digital-telesalud-ia/",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/ia-tecnologia-y-automatizacion/certificacion-en-ia-para-la-atencion-medica/"
+   ]
+  },
+  {
+   "name": "IA para docentes",
+   "description": "Cómo meter la IA en la enseñanza: uso en el aula, evaluación, prevención del plagio, analítica educativa, neuroeducación y diseño de contenidos y experiencias de aprendizaje, incluido el diseño instruccional virtual. Para docentes de colegio y universidad. Continental (4), UPC (4), USIL (3) y PUCP (1).",
+   "urls": [
+    "https://continua.edu.pe/ia-aplicada-a-la-educacion-superior/",
+    "https://continua.edu.pe/taller-de-verano-en-neuroeducacion-con-ia/",
+    "https://continua.edu.pe/desarrollo-de-contenidos-para-la-formacion-virtual-con-inteligencia-artificial/",
+    "https://continua.edu.pe/inteligencia-artificial-para-docentes/",
+    "https://educacioncontinua.pucp.edu.pe/talleres/introduccion-uso-inteligencia-artificial-educacion/",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/creatividad-e-innovacion-con-diseno/certificacion-en-ia-generativa-para-la-docencia/",
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/educacion/ia-aplicada-al-diseno-de-experiencias-de-aprendizaje/",
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/educacion/ia-para-la-docencia-y-prevencion-de-plagio/",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/educacion/estrategias-educativas-avanzadas-ia-y-analisis-de-datos-en-la-educacion/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/diseno-de-contenidos-y-recursos-educativos-con-ia/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/herramientas-de-ia-para-el-aprendizaje/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/transforma-tus-clases-con-inteligencia-artificial-generativa-herramientas-para-docentes-de-secundaria/"
+   ]
+  },
+  {
+   "name": "IA en derecho y regulación",
+   "description": "IA generativa y LegalTech para investigar y redactar en derecho, y además ética, regulación y gobernanza de la IA desde el derecho y el cumplimiento normativo. Continental (3), ULima, UPC y USIL (1 cada una).",
+   "urls": [
+    "https://continua.edu.pe/taller-de-verano-en-ia-generativa-para-abogados/",
+    "https://continua.edu.pe/taller-de-verano-investigacion-juridica-inteligencia-artificial/",
+    "https://continua.edu.pe/abogados-ia/",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/cursos-talleres/cec-legaltech-ia-abogados",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/ia-tecnologia-y-automatizacion/certificacion-en-etica-regulacion-y-gobernanza-de-la-ia/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ia-algoritmos-y-transformacion-aplicado-al-derecho/"
+   ]
+  },
+  {
+   "name": "Marketing digital con IA",
+   "description": "IA para campañas digitales, redes sociales, contenido de marca y automatización de marketing, incluido el uso de IA generativa en los procesos de marketing. PUCP (3), USIL (3), Continental, ULima y UPC (1 cada una). UTEC no tiene.",
+   "urls": [
+    "https://continua.edu.pe/taller-de-verano-marketing-digital-con-uso-de-ia/",
+    "https://educacioncontinua.pucp.edu.pe/cursos/inteligencia-artificial-aplicada-marketing/",
+    "https://educacioncontinua.pucp.edu.pe/cursos/manejo-redes-sociales-inteligencia-artificial-2/",
+    "https://educacioncontinua.pucp.edu.pe/programas/especializacion-marketing-digital-avanzado-inteligencia-artificial/",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/cursos-talleres/cec-ia-marketing-digital",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/negocios-marketing-y-desarrollo-comercial/certificacion-en-marketing-digital-con-ia/",
+    "https://educacioncontinua.usil.edu.pe/programa/taller/full-day-ia-y-marketing-digital-express/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ia-aplicada-al-marketing-estrategias-de-automatizacion/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/generative-ai-for-marketing-processes/"
+   ]
+  },
+  {
+   "name": "Growth, CX y marketing predictivo",
+   "description": "Especialidades de marketing: predecir el comportamiento del cliente, growth marketing, psicología del consumidor (PsychoGrowth) y personalización de la experiencia del cliente con IA. UPC (3) y Continental (1). USIL no tiene cursos en este grupo.",
+   "urls": [
+    "https://continua.edu.pe/marketing-predictivo-con-ia/",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/negocios-marketing-y-desarrollo-comercial/experiencia-del-cliente-y-personalizacion-con-ia/",
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/marketing-y-gestion-comercial/aplicaciones-de-ia-en-growth-marketing/",
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/marketing-y-gestion/ia-aplicada-al-psychogrowth/"
+   ]
+  },
+  {
+   "name": "IA para ventas",
+   "description": "IA en procesos comerciales B2B y B2C, venta consultiva, productividad comercial y automatización para líderes comerciales. UPC (2) y UTEC (1).",
+   "urls": [
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/marketing-y-gestion-comercial/ia-y-automatizacion-para-lideres-de-marketing-y-ventas/",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/marketing-y-gestion/certificacion-en-ia-para-ventas-y-productividad-comercial/",
+    "https://posgrado.utec.edu.pe/cursos/estrategias-de-venta-consultiva-b2b-en-la-era-de-la-ia"
+   ]
+  },
+  {
+   "name": "Comunicación corporativa con IA",
+   "description": "IA generativa para comunicación corporativa, relaciones públicas, reputación, manejo de crisis y embajadores de marca. UPC (3) y USIL (1).",
+   "urls": [
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/comunicaciones/embajadores-de-marca-ia-y-asistente-virtuales/",
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/comunicaciones/inteligencia-artificial-para-la-comunicacion-corporativa/",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/comunicaciones/ia-para-la-comunicacion-corporativa/",
+    "https://educacioncontinua.usil.edu.pe/programa/especializacion/comunicacion-estrategica-reputacion-y-contenidos-digitales-con-ia/"
+   ]
+  },
+  {
+   "name": "Diseño y contenidos creativos con IA",
+   "description": "IA generativa para diseño gráfico, identidad de marca, UX/UI y producción de texto, imagen y audio. ULima (3), Continental y USIL (1 cada una).",
+   "urls": [
+    "https://continua.edu.pe/tic-programa-en-diseno-grafico-digital-asistido-por-ia/",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/cursos-talleres/cec-marca-ia",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/cursos-talleres/taller-ia-contenido-textual",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/cursos-talleres/taller-ia-creadores-contenido",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ux-ui-con-ia-disena-experiencias-digitales-usando-inteligencia-artificial/"
+   ]
+  },
+  {
+   "name": "Redacción académica con IA",
+   "description": "Taller de Word con IA para redactar textos académicos: índices, tablas, citas y notas al pie. Solo lo ofrece PUCP, y es un mismo curso publicado dos veces.",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/cursos/uso-microsoft-word-inteligencia-artificial-redaccion-textos-academicos-2/",
+    "https://educacioncontinua.pucp.edu.pe/talleres/uso-microsoft-word-inteligencia-artificial-redaccion-textos-academicos/"
+   ]
+  },
+  {
+   "name": "IA generativa para productividad",
+   "description": "ChatGPT, Gemini, prompt engineering y herramientas de IA generativa para el trabajo diario, para profesionales que no son técnicos (hay una versión para adultos mayores). PUCP (7), UPC (4) y ULima (1). USIL no tiene cursos en este grupo.",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/cursos/ai-business-toolkit-mejorando-desempeno-diario-inteligencia-artificial/",
+    "https://educacioncontinua.pucp.edu.pe/cursos/aplicaciones-y-herramientas-de-inteligencia-artificial/",
+    "https://educacioncontinua.pucp.edu.pe/cursos/capacitacion-investigacion-con-ia-estrategias-para-generar-analisis-eficaz/",
+    "https://educacioncontinua.pucp.edu.pe/cursos/curso-de-introduccion-a-la-ia-creacion-diseno-y-optimizacion-de-prompts/",
+    "https://educacioncontinua.pucp.edu.pe/cursos/productividad-con-ia/",
+    "https://educacioncontinua.pucp.edu.pe/cursos/prompt-engineering-herramientas-ia-gestion-negocios/",
+    "https://educacioncontinua.pucp.edu.pe/talleres/tecnologia-amigable-ia-dia-dia/",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/cursos-talleres/cec-ia-generativa-negocios",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/liderazgo-y-desarrollo-estrategico/certificacion-en-ia-generativa/",
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/ciencia-de-datos/ia-para-los-negocios/",
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/gestion-empresarial-e-innovacion/aplicaciones-de-la-ia-generativa-en-la-empresa/",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/habilidades-digitales/certificacion-en-inteligencia-artificial-estrategias-prompting/"
+   ]
+  },
+  {
+   "name": "IA para directivos y estrategia",
+   "description": "IA y datos para la estrategia y la gestión de la empresa, el liderazgo, la gobernanza y la transformación de la organización (incluye el perfil 'data translator'). Para gerentes y alta dirección. UTEC (3), PUCP, ULima y UPC (2 cada una). USIL no tiene cursos en este grupo.",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/programas/especializacion-inteligencia-artificial-aplicada-negocios/",
+    "https://educacioncontinua.pucp.edu.pe/programas/programa-de-ia-aplicada-a-la-direccion-estrategica/",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/cursos-talleres/cec-liderazgo-ia",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/programas-de-especializacion/pec-inteligencia-artificial",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/negocios-marketing-y-desarrollo-comercial/certificacion-en-ia-aplicada-a-negocios/",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/Innovacion/inteligencia-artificial-aplicada-a-la-gestion/",
+    "https://posgrado.utec.edu.pe/cursos/data-ai-leadership-program",
+    "https://posgrado.utec.edu.pe/cursos/estrategia-de-datos-e-ia-para-negocios",
+    "https://posgrado.utec.edu.pe/programas/data-ai-business-leaders"
+   ]
+  },
+  {
+   "name": "Analítica de datos para decisiones",
+   "description": "Business analytics, machine learning aplicado al negocio, fundamentos de análisis de datos y dashboards con Excel/Power BI e IA, pensados para quien decide y no para quien programa. UPC (2), PUCP, USIL y UTEC (1 cada una).",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/programas/especializacion-machine-learning-aplicado-negocios/",
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/gestion-empresarial-e-innovacion/fundamentos-de-ia-y-analisis-de-datos/",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/habilidades-digitales/certificacion-en-machine-learning-para-la-estrategia-empresarial/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/excel-avanzado-con-ia-para-analisis-y-dashboards/",
+    "https://posgrado.utec.edu.pe/cursos/business-analytics-para-resolver-desafios-de-negocio"
+   ]
+  },
+  {
+   "name": "Innovación y emprendimiento con IA",
+   "description": "IA para idear, validar y escalar modelos de negocio, startups y proyectos de innovación, con Lean Startup, Design Thinking, agilidad o hackathon. Cada una de las 6 universidades tiene un curso.",
+   "urls": [
+    "https://continua.edu.pe/inteligencia-artificial-para-la-innovacion-y-los-negocios/",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/programas-de-especializacion/pec-innovacion",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/innovacion/certificacion-en-startups-digitales-innovacion-ia-y-escalamiento/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ia-para-emprendedores-innovacion-que-genera-valor/",
+    "https://posgrado.utec.edu.pe/cursos/ia-aplicada-la-innovacion"
+   ]
+  },
+  {
+   "name": "Gestión de proyectos con IA",
+   "description": "IA para la planificación, el riesgo y la automatización en proyectos tradicionales y ágiles, agilidad empresarial y gestión de proyectos de IA. USIL (2), Continental, PUCP y UPC (1 cada una).",
+   "urls": [
+    "https://continua.edu.pe/inteligencia-artificial-para-la-gestion-de-proyectos/",
+    "https://educacioncontinua.pucp.edu.pe/cursos/liderazgo-gestion-proyectos-inteligencia-artificial/",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/negocios-marketing-y-desarrollo-comercial/certificacion-en-gestion-de-proyectos-de-ia/",
+    "https://educacioncontinua.usil.edu.pe/programa/taller/executive-program-agilidad-empresarial-con-ia-y-data/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ia-para-la-gestion-de-proyectos-automatizacion-y-optimizacion/"
+   ]
+  },
+  {
+   "name": "Agentes de IA y chatbots",
+   "description": "Diseño y construcción de agentes inteligentes, sistemas multiagente y chatbots, con código o con herramientas no-code. Continental, PUCP, UPC, USIL y UTEC (1 cada una).",
+   "urls": [
+    "https://continua.edu.pe/diseno-e-implementacion-de-chatbots-con-ia/",
+    "https://educacioncontinua.pucp.edu.pe/cursos/ia-agentica-aplicada-negocios-diseno-agentes-automatizacion-productividad-empresarial/",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/habilidades-digitales/agentes-de-ia-y-prompt-engineering-aplicado-a-negocios/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/desarrollo-de-agentes-inteligentes-con-ia/",
+    "https://posgrado.utec.edu.pe/programas/diseno-e-implementacion-de-agentes-ia"
+   ]
+  },
+  {
+   "name": "Automatización de procesos con IA",
+   "description": "Automatización de procesos de negocio con IA generativa, RPA y plataformas no-code o low-code, para quienes no programan. PUCP, UPC y UTEC (1 cada una).",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/programas/automatizacion-procesos-ia-nocode-programadores/",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/ia-tecnologia-y-automatizacion/certificacion-en-automatizacion-de-procesos-con-ia/",
+    "https://posgrado.utec.edu.pe/cursos/automatizacion-con-ia-generativa-para-ejecutivos"
+   ]
+  },
+  {
+   "name": "Desarrollo de software con IA",
+   "description": "Desarrollo de aplicaciones sobre LLMs, TensorFlow y PyTorch, soluciones de software con IA y QA con IA. Para desarrolladores. UTEC (2), PUCP y UPC (1 cada una).",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/diplomaturas/especializacion-desarrollo-aplicaciones-con-inteligencia-artificial/",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/ia-tecnologia-y-automatizacion/certificacion-desarrollo-de-aplicaciones-con-ia-generativa/",
+    "https://posgrado.utec.edu.pe/programas/diseno-desarrollo-soluciones-ia",
+    "https://posgrado.utec.edu.pe/cursos/ai-powered-quality-engineering"
+   ]
+  },
+  {
+   "name": "Deep learning y visión computacional",
+   "description": "Redes neuronales, CNN, OpenCV y procesamiento de imágenes y video. USIL (2) y UTEC (1).",
+   "urls": [
+    "https://educacioncontinua.usil.edu.pe/programa/curso/opencv-vision-por-computadora-y-procesamiento-de-imagenes/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/computer-vision/",
+    "https://posgrado.utec.edu.pe/cursos/deep-learning"
+   ]
+  },
+  {
+   "name": "Ingeniería de datos y MLOps",
+   "description": "Pipelines de datos con Databricks (PySpark, Delta Lake) y despliegue y monitoreo de modelos. USIL (2) y UTEC (1).",
+   "urls": [
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ingenieria-de-datos-y-automatizacion-con-databricks/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/databricks-mastery-programa-experto-en-datos-e-inteligencia-artificial/",
+    "https://posgrado.utec.edu.pe/cursos/machine-learning-operations-mlops"
+   ]
+  },
+  {
+   "name": "Ciencia de datos y machine learning",
+   "description": "Formación técnica en Python o R: limpieza de datos, regresión, clasificación, modelos de ML y big data, incluido el diplomado de ciencia de datos. PUCP (2, mismo curso publicado dos veces), USIL (2) y UPC (1).",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/cursos/introduccion-python-machine-learning-1/",
+    "https://educacioncontinua.pucp.edu.pe/cursos/introduccion-python-machine-learning/",
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/analitica-y-toma-de-decisiones/certificacion-en-analitica-avanzada-y-machine-learning-con-ia/",
+    "https://educacioncontinua.usil.edu.pe/programa/diplomado/diplomado-en-ciencia-de-datos-aplicada-a-la-economia-y-los-negocios/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/machine-learning-para-ingenieria-optimizacion-y-prediccion-eficiente/"
+   ]
+  },
+  {
+   "name": "Ciberseguridad con IA",
+   "description": "IA para detectar amenazas, responder a incidentes y gestionar el riesgo de ciberseguridad. UPC (2) y UTEC (1).",
+   "urls": [
+    "https://educacioncontinua.upc.edu.pe/certificaciones-digitales/ia-tecnologia-y-automatizacion/certificacion-en-ciberseguridad-e-inteligencia-artificial/",
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/sistemas-y-ti/ia-para-la-gestion-estrategica-de-riesgos-de-ciberseguridad/",
+    "https://posgrado.utec.edu.pe/programas/ia-aplicada-ciberseguridad"
+   ]
+  },
+  {
+   "name": "IA para finanzas y auditoría",
+   "description": "IA y machine learning para inversiones, valorización (Bloomberg), automatización contable con no-code, reportes financieros, riesgos y auditoría. PUCP (3), UPC (2) y USIL (1).",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/cursos/inteligencia-artificial-aplicada-finanzas/",
+    "https://educacioncontinua.pucp.edu.pe/programas/especializacion-inversiones-inteligencia-artificial/",
+    "https://educacioncontinua.pucp.edu.pe/talleres/no-code-ia-para-financieros/",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/finanzas-y-contabilidad/valorizacion-de-empresas-con-ia-y-bloomberg/",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/innovacion/ia-y-data-analytics-para-la-gestion-de-riesgo-y-auditoria/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ia-aplicada-a-las-finanzas/"
+   ]
+  },
+  {
+   "name": "IA para logística y operaciones",
+   "description": "Predicción de demanda, cadena de suministro, logística internacional y manufactura inteligente (Smart Factory). PUCP (2), ULima y USIL (1 cada una).",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/cursos/inteligencia-artificial-aplicada-logistica/",
+    "https://educacioncontinua.pucp.edu.pe/programas/especializacion-ia-aplicado-logistica/",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/cursos-talleres/cec-smart-factory",
+    "https://educacioncontinua.usil.edu.pe/programa/summer-programs/inteligencia-artificial-en-la-gestion-de-logistica-internacional/"
+   ]
+  },
+  {
+   "name": "IA para recursos humanos",
+   "description": "People analytics, compensaciones con modelos predictivos, psicología organizacional e IA generativa para la gestión del talento. USIL (2), PUCP y UPC (1 cada una).",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/programas/especializacion-compensaciones-beneficios-impulsado-inteligencia-artificial/",
+    "https://educacioncontinua.upc.edu.pe/cursos-de-especializacion/recursos-humanos/ia-y-people-analytics-para-recursos-humanos/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ia-para-la-gestion-del-talento-una-vision-desde-la-psicologia-organizacional/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/optimiza-rrhh-con-ia-generativa/"
+   ]
+  },
+  {
+   "name": "IA para la gestión pública",
+   "description": "IA y datos para políticas públicas, gestión del Estado y ciencias sociales. PUCP, ULima y UPC (1 cada una). USIL no tiene cursos en este grupo.",
+   "urls": [
+    "https://educacioncontinua.pucp.edu.pe/programas/ia-generativa-aplicada-ciencias-sociales-gestion-publica/",
+    "https://www.ulima.edu.pe/educacion-ejecutiva/cursos-talleres/cec-ia-gestion-publica",
+    "https://educacioncontinua.upc.edu.pe/programas-especializados/gestion-publica/certificacion-en-ia-aplicada-a-la-gestion-publica/"
+   ]
+  },
+  {
+   "name": "IA en ingeniería, construcción y minería",
+   "description": "IA y machine learning para ingeniería civil, minería, arquitectura y urbanismo, tasación inmobiliaria, gestión del riesgo de desastres e IA generativa para ingenieros. USIL (4), Continental y UTEC (1 cada una).",
+   "urls": [
+    "https://continua.edu.pe/taller-de-verano-taller-de-ia-generativa-para-ingenieros/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/tasacion-y-peritaje-inmobiliario-con-ia-aplicada/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/inteligencia-artificial-aplicada-a-la-arquitectura-diseno-y-urbanismo/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ia-para-la-gestion-del-riesgo-de-desastres/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ia-para-soluciones-en-ingenieria-civil/",
+    "https://posgrado.utec.edu.pe/programa-inteligencia-artificial-para-mineria"
+   ]
+  },
+  {
+   "name": "IA para hotelería y restaurantes",
+   "description": "IA para la gestión de hoteles y restaurantes. Solo la ofrece USIL.",
+   "urls": [
+    "https://educacioncontinua.usil.edu.pe/programa/curso/inteligencia-artificial-para-la-gestion-de-restaurantes/",
+    "https://educacioncontinua.usil.edu.pe/programa/curso/ia-aplicada-a-la-hoteleria-innovacion-y-transformacion-digital/"
+   ]
+  }
+ ]
+}
