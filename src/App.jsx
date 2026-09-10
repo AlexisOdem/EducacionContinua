@@ -7,6 +7,7 @@ const { Reveal, Counter, Segmented, Legend, ActionRow, RISK, C } = CH
 const [Prevalence, PerHour, Jitter, Mapa, Butterfly, Dumbbell, Premium, PriceLadder, Heat, GroupTable, ActionMatrix] =
   [CH.Prevalence, CH.PerHour, CH.Jitter, CH.Mapa, CH.Butterfly, CH.Dumbbell, CH.Premium, CH.PriceLadder, CH.Heat, CH.GroupTable, CH.ActionMatrix].map(c => memo(c))
 import { ACCIONES, VARIABLES } from './acciones'
+import logo from './assets/logo-usil-30.png'
 
 const TIPO_OPTS = ['Todos', ...TIPOS]
 const SECTIONS = [
@@ -102,7 +103,8 @@ export default function App() {
       <aside className="relative lg:sticky lg:top-0 lg:h-dvh bg-usil-deep text-white px-5 py-5 flex flex-col gap-5">
         <ProgressBar />
         <div>
-          <div className="font-semibold leading-tight">USIL · Educación Continua</div>
+          <div className="bg-white rounded-lg px-4 py-3 max-w-[200px]"><img src={logo} alt="USIL, 30 años. Tu puente al mundo" className="block w-full h-auto" /></div>
+          <div className="font-semibold leading-tight mt-4">Educación Continua</div>
           <div className="text-xs text-white/60 mt-1">Benchmark IA · {FECHA}</div>
         </div>
         <SideNav />
