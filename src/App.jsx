@@ -1,8 +1,10 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'motion/react'
-import { TIPOS, S, filt, byUni, mercado, premiumByUni, escalera, heat, grupos, pricePoints, formatos, cuotaLineas, FECHA, RANKING_FUENTE, MIN_IA } from './stats'
+import { TIPOS, LINEAS, LINEA_GENERAL, S, filt, byUni, mercado, premiumByUni, escalera, heat, grupos, pricePoints, formatos, cuotaLineas, linea as fichaLinea, FECHA, RANKING_FUENTE, MIN_IA } from './stats'
+import { Panel, Kpi } from './ui'
+import Ficha from './ficha'
 import * as CH from './charts'
-const { Reveal, Counter, Segmented, Legend, ActionRow, RISK, C } = CH
+const { Reveal, Segmented, Legend, ActionRow, RISK, C } = CH
 // Gráficos memorizados: un cambio de estado que no les toca (vista del mapa, modo del mapa de calor, filtro de la tabla) no los vuelve a dibujar.
 const [Prevalence, PerHour, Jitter, Mapa, Butterfly, Dumbbell, Premium, PriceLadder, Heat, GroupTable, ActionMatrix] =
   [CH.Prevalence, CH.PerHour, CH.Jitter, CH.Mapa, CH.Butterfly, CH.Dumbbell, CH.Premium, CH.PriceLadder, CH.Heat, CH.GroupTable, CH.ActionMatrix].map(c => memo(c))
@@ -10,6 +12,7 @@ import { ACCIONES, VARIABLES } from './acciones'
 import logo from './assets/logo-usil-30.png'
 
 const TIPO_OPTS = ['Todos', ...TIPOS]
+const LINEA_OPTS = [LINEA_GENERAL, ...LINEAS]
 const SECTIONS = [
   ['p1', 'Quién tiene más IA y a qué precio'],
   ['p2', 'Dónde está USIL en el mapa'],
@@ -19,31 +22,12 @@ const SECTIONS = [
   ['p6', 'Cinco acciones'],
 ]
 
-/* Un solo patrón de panel: cabecera (título + control), cuerpo, aclaración. */
-const Panel = ({ title, aside, caption, children, className = '' }) => (
-  <section className={`bg-surface rounded-lg border border-line min-w-0 overflow-hidden ${className}`}>
-    <header className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-line">
-      <h3 className="text-[17px] m-0">{title}</h3>
-      {aside}
-    </header>
-    <div className="px-5 pt-4 pb-3">{children}</div>
-    {caption && <p className="text-xs text-muted px-5 pb-3 m-0">{caption}</p>}
-  </section>
-)
 const SectionTitle = ({ id, n, children }) => (
   <motion.div id={id} className="scroll-mt-20 flex items-baseline gap-4 mb-5" initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, amount: 0.8 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
     <span className="font-display text-4xl leading-none text-usil-tint">{n}</span>
     <h2 className="text-[26px] leading-tight m-0">{children}</h2>
   </motion.div>
 )
-const Kpi = ({ label, value, sub, delay = 0, format }) => (
-  <motion.div className="bg-surface rounded-lg border border-line px-4 py-3 min-w-0" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay }}>
-    <div className="text-xs text-muted truncate">{label}</div>
-    <div className="num text-[34px] leading-tight text-usil-deep">{typeof value === 'number' || value === null ? <Counter value={value} format={format} /> : value}</div>
-    <div className="text-xs text-ink2 truncate">{sub}</div>
-  </motion.div>
-)
-
 /* Scroll: la barra de progreso y la sección activa tienen su propio estado (y la barra ni siquiera usa estado: escribe el estilo directo).
    Antes vivían en App y cada píxel de scroll volvía a dibujar los 8 gráficos. */
 const onScrollFrame = fn => {
@@ -77,11 +61,20 @@ function SideNav() {
 }
 
 export default function App() {
-  const q = new URLSearchParams(location.search)  // ?tipo=Curso%20corto&view=B para enlaces directos y capturas
+  const q = new URLSearchParams(location.search)  // ?tipo=Curso%20corto&view=B&linea=Salud para enlaces directos y capturas
   const [tipo, setTipo] = useState(TIPO_OPTS.includes(q.get('tipo')) ? q.get('tipo') : 'Todos')
   const [view, setView] = useState(q.get('view') === 'B' ? 'B' : 'A')
+  const [lin, setLin] = useState(LINEA_OPTS.includes(q.get('linea')) ? q.get('linea') : LINEA_GENERAL)
   const [heatMode, setHeatMode] = useState('n')
   const [soloBrechas, setSoloBrechas] = useState('Todos')
+
+  // la línea activa vive en la URL para que el enlace sea compartible
+  useEffect(() => {
+    const p = new URLSearchParams(location.search)
+    if (lin === LINEA_GENERAL) p.delete('linea'); else p.set('linea', lin)
+    const s = p.toString()
+    history.replaceState(null, '', `${location.pathname}${s ? `?${s}` : ''}${location.hash}`)
+  }, [lin])
 
   const rows = useMemo(() => filt(tipo), [tipo])
   const unis = useMemo(() => byUni(rows), [rows])
@@ -96,27 +89,41 @@ export default function App() {
   const brechas = useMemo(() => gs.filter(g => !g.nUsil && g.k), [gs])
   const premUni = useMemo(() => premiumByUni(tipo), [tipo])
   const ladder = useMemo(() => escalera(rows), [rows])
+  const ficha = useMemo(() => lin === LINEA_GENERAL ? null : fichaLinea(rows, lin), [rows, lin])
 
   return (
     <div className="lg:grid lg:grid-cols-[240px_1fr] min-h-dvh">
       {/* Barra lateral: marca, navegación por secciones y filtro global */}
-      <aside className="relative lg:sticky lg:top-0 lg:h-dvh bg-usil-deep text-white px-5 py-5 flex flex-col gap-5">
+      <aside className="relative lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto bg-usil-deep text-white px-5 py-5 flex flex-col gap-5">
         <ProgressBar />
         <div>
           <div className="bg-white rounded-lg px-4 py-3 max-w-[200px]"><img src={logo} alt="USIL, 30 años. Tu puente al mundo" className="block w-full h-auto" /></div>
           <div className="font-semibold leading-tight mt-4">Educación Continua</div>
           <div className="text-xs text-white/60 mt-1">Benchmark IA · {FECHA}</div>
         </div>
-        <SideNav />
+        {ficha
+          ? <div>
+            <div className="text-[13px] font-semibold leading-snug">{lin}</div>
+            <button onClick={() => setLin(LINEA_GENERAL)} className="mt-2 p-0 bg-transparent border-0 text-[13px] text-white/70 hover:text-white underline cursor-pointer">← Volver a General</button>
+          </div>
+          : <SideNav />}
         <div>
           <div className="text-[11px] uppercase tracking-wide text-white/50 mb-2">Tipo de curso</div>
           <div className="flex flex-wrap gap-1.5">
             {TIPO_OPTS.map(o => <button key={o} onClick={() => setTipo(o)} aria-pressed={tipo === o} className={`px-2.5 py-1.5 rounded text-xs cursor-pointer transition-colors duration-150 ${tipo === o ? 'bg-gold text-usil-deep font-semibold' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>{o}</button>)}
           </div>
         </div>
+        <div>
+          <label htmlFor="linea" className="block text-[11px] uppercase tracking-wide text-white/50 mb-2">Línea de carrera</label>
+          <select id="linea" value={lin} onChange={e => setLin(e.target.value)}
+            className={`w-full rounded border-0 px-2 py-1.5 text-xs cursor-pointer ${ficha ? 'bg-gold text-usil-deep font-semibold' : 'bg-white/10 text-white'}`}>
+            {LINEA_OPTS.map(o => <option key={o} value={o} className="bg-white text-ink font-normal">{o}</option>)}
+          </select>
+        </div>
       </aside>
 
       <main className="px-5 lg:px-10 py-8 max-w-[1180px] w-full min-w-0 overflow-x-clip">
+        {ficha ? <Ficha key={lin} d={ficha} tipo={tipo} /> : <>
         <motion.h1 className="text-[34px] lg:text-[40px] leading-[1.1] text-usil-deep m-0 mb-1" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>IA en la educación continua: USIL frente al mercado</motion.h1>
         <p className="text-xs text-muted m-0 mb-6">USIL · UPC · PUCP · ULima · UTEC · Continental{tipo !== 'Todos' ? ` · filtro: ${tipo}` : ''}</p>
 
@@ -221,6 +228,7 @@ export default function App() {
         </div>
 
         <footer className="text-xs text-muted pb-8">Catálogos públicos al {FECHA} · posgrado excluido · precio de lista público general · {RANKING_FUENTE}</footer>
+        </>}
       </main>
     </div>
   )
