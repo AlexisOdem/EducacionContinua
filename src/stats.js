@@ -1,4 +1,5 @@
 import D from './data.json'
+import { arquetipo, metricasLinea } from './lineas'
 
 export const UNIS = D.unis, TIPOS = D.tipos, LINEAS = D.lineas, RANKING = D.ranking, FECHA = D.fecha, RANKING_FUENTE = D.ranking_fuente
 export const COMPS = UNIS.filter(u => u !== 'USIL')
@@ -120,6 +121,77 @@ export function cuotaLineas(rows, minIA = 5) {
   return { ls, tot }
 }
 
-// puntos para el jitter de precios
+// puntos para el jitter de precios (us = columnas del gráfico, por si se ocultan universidades sin precio)
 const hash = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return ((h >>> 0) % 1000) / 1000 }
-export const pricePoints = rows => rows.filter(r => r.p).map(r => ({ x: UNIS.indexOf(r.u) + (hash(r.n) - 0.5) * 0.6, y: r.p, u: r.u, ia: r.ia, n: r.n, t: r.t }))
+export const pricePoints = (rows, us = UNIS) => rows.filter(r => r.p && us.includes(r.u)).map(r => ({ x: us.indexOf(r.u) + (hash(r.n) - 0.5) * 0.6, y: r.p, u: r.u, ia: r.ia, n: r.n, t: r.t }))
+
+/* Ficha de línea — todo lo que necesitan los 6 paneles, ya filtrado por línea. */
+export const LINEA_GENERAL = 'General'
+const ordCursos = (a, b) => (isUsil(b.u) - isUsil(a.u)) || (a.u > b.u) - (a.u < b.u) || (a.p ?? 1e9) - (b.p ?? 1e9)
+const puesto = xs => { const i = xs.findIndex(x => isUsil(x.u)); return i < 0 ? null : i + 1 }
+export const lista = xs => xs.length < 2 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} ${/^h?i/i.test(xs.at(-1)) ? 'e' : 'y'} ${xs.at(-1)}`
+const pl = (n, s) => `${n} ${s}${n === 1 ? '' : 's'}`
+
+export function linea(rows, l) {
+  const rs = rows.filter(r => r.l === l)
+  const unis = byUni(rs), mkt = mercado(rs), usil = unis.find(u => isUsil(u.u))
+  const vol = unis.filter(u => u.total).sort((a, b) => b.total - a.total)
+  const pre = unis.filter(u => u.medIA != null).sort((a, b) => b.medIA - a.medIA)
+  const pComp = rs.filter(r => !isUsil(r.u) && r.ia && r.p).map(r => r.p)
+  const medComp = median(pComp)
+  const conPrecio = UNIS.filter(u => rs.some(r => r.u === u && r.p))
+  const m = metricasLinea(rs, UNIS)
+  const o = {
+    ...m, l, rs, unis, mkt, usil, gs: grupos(rs), arq: arquetipo(m),
+    cuota: rs.length ? Math.round(100 * usil.total / rs.length) : 0,
+    puestoVol: puesto(vol), k: vol.length, puestoPrecio: puesto(pre), kp: pre.length, lider: vol[0],
+    medComp, minComp: pComp.length ? Math.min(...pComp) : null, maxComp: pComp.length ? Math.max(...pComp) : null,
+    indice: usil.medIA != null && medComp ? Math.round(100 * usil.medIA / medComp) : null,
+    puntos: pricePoints(rs, conPrecio), conPrecio, sinPrecio: UNIS.filter(u => rs.some(r => r.u === u) && !conPrecio.includes(u)),
+    porTipo: UNIS.map(u => { const x = rs.filter(r => r.u === u); return { u, total: x.length, corto: x.filter(r => r.t === TIPOS[0]).length, largo: x.filter(r => r.t === TIPOS[1]).length } }),
+    cursosIA: rs.filter(r => r.ia).sort(ordCursos),
+    ladder: escalera(rs),
+    unisIA: COMPS.filter(u => rs.some(r => r.u === u && r.ia)),
+  }
+  o.insights = insights(o)
+  return o
+}
+
+/* Insights por reglas (3 frases). tono: usil = favorable, comp = neutral, gold = alerta. */
+function insights(o) {
+  const { usil, medComp, mktIA, usilIA, usilTot, total, indice } = o
+  const lidera = !o.lider
+    ? { t: 'Ninguna universidad tiene programas en la línea con este filtro.', c: 'comp' }
+    : isUsil(o.lider.u)
+      ? { t: `USIL lidera el volumen de la línea con ${pl(o.lider.total, 'programa')} (1° de ${o.k}).`, c: 'usil' }
+      : { t: `${o.lider.u} lidera el volumen de la línea con ${pl(o.lider.total, 'programa')}; USIL ${o.puestoVol ? `es ${o.puestoVol}° de ${o.k}` : 'no tiene programas con este filtro'}.`, c: 'comp' }
+  const precioVs = usil.medIA == null || medComp == null
+    ? { t: 'Falta precio publicado en los cursos IA de un lado de la comparación.', c: 'comp' }
+    : { t: `USIL vende el curso IA a ${S(usil.medIA)}, el ${indice}% de la mediana de los competidores (${S(medComp)}).`, c: indice < 50 ? 'gold' : indice > 150 ? 'usil' : 'comp' }
+
+  if (o.arq === 'nicho') {
+    const solo = usilIA > 0 && usilIA === mktIA
+    return [
+      { t: `USIL concentra ${o.cuota}% del catálogo de la línea (${usilTot} de ${total} programas).`, c: 'usil' },
+      solo ? { t: `Los ${usilIA} cursos IA de la línea son de USIL: nicho sin competencia.`, c: 'usil' } : { t: `USIL tiene ${usilIA} cursos IA de ${mktIA} en la línea.`, c: 'comp' },
+      { t: `Precio mediano USIL con IA ${S(usil.medIA)} frente a ${S(usil.medNo)} sin IA.`, c: 'comp' },
+    ]
+  }
+  if (o.arq === 'hueco') {
+    return [
+      { t: `USIL tiene ${pl(usilTot, 'programa')} en la línea y ninguno con IA.`, c: 'gold' },
+      { t: `${lista(o.unisIA)} ya ${o.unisIA.length > 1 ? 'venden' : 'vende'} ${pl(mktIA, 'curso')} IA.`, c: 'comp' },
+      medComp == null ? { t: 'Los competidores no publican precio en esos cursos.', c: 'comp' }
+        : { t: `Precio mediano de esos cursos: ${S(medComp)}${o.minComp === o.maxComp ? '' : ` (rango ${S(o.minComp)}–${S(o.maxComp)})`}.`, c: 'comp' },
+    ]
+  }
+  if (o.arq === 'batalla') {
+    const gaps = o.gs.filter(g => !g.nUsil && g.k >= 2).map(g => g.g)
+    return [lidera, precioVs, { t: `Temáticas IA que venden 2+ competidores y USIL no: ${gaps.length ? lista(gaps) : 'ninguna'}.`, c: gaps.length ? 'gold' : 'usil' }]
+  }
+  const desglose = UNIS.map(u => ({ u, n: o.rs.filter(r => r.u === u && r.ia).length })).filter(x => x.n).map(x => `${x.u} ${x.n}`)
+  const tercero = usilIA > 0 ? { t: `USIL ${S(usil.medIA)} frente a ${S(medComp)} de los competidores.`, c: indice != null && indice < 50 ? 'gold' : 'comp' }
+    : mktIA === 0 ? { t: 'Ninguna universidad vende IA en esta línea todavía.', c: 'usil' }
+      : { t: `USIL no tiene cursos IA en la línea; los competidores venden ${mktIA}.`, c: 'gold' }
+  return [lidera, { t: mktIA ? `Solo ${pl(mktIA, 'curso')} IA en la línea: ${lista(desglose)}.` : 'La línea no tiene ningún curso con IA.', c: 'comp' }, tercero]
+}

@@ -30,7 +30,7 @@ export function Counter({ value, format = v => Math.round(v), duration = 1.2 }) 
   const reduce = useReducedMotion()
   const [v, setV] = useState(0)
   useEffect(() => {
-    if (!inView) return
+    if (!inView && ANIM) return
     if (reduce || !ANIM || value == null) { setV(value ?? 0); return }
     let t0, raf
     const tick = now => { t0 ??= now; const t = Math.min(1, (now - t0) / (duration * 1000)); setV(value * (1 - Math.pow(1 - t, 3))); if (t < 1) raf = requestAnimationFrame(tick) }
@@ -74,6 +74,26 @@ export function Prevalence({ data, h = 300 }) {
   )
 }
 
+/* Ficha 2 — mismo apilado que Prevalence pero por tipo: curso corto (pleno) y especialización y diplomado (tinte) */
+export function StackedTipo({ data, h = 300 }) {
+  const d = [...data].filter(x => x.total).sort((a, b) => b.total - a.total)
+  return (
+    <ResponsiveContainer width="100%" height={h}>
+      <BarChart data={d} layout="vertical" margin={{ left: 0, right: 60, top: 4, bottom: 4 }} barCategoryGap={10}>
+        {grid}
+        <XAxis type="number" tickLine={false} axisLine={false} allowDecimals={false} />
+        <YAxis type="category" dataKey="u" width={80} tickLine={false} axisLine={false} tick={tickU} />
+        <Tooltip {...tip} formatter={(v, k) => [v, k === 'corto' ? 'Curso corto' : 'Especialización y diplomado']} />
+        <Bar isAnimationActive={ANIM} dataKey="corto" stackId="a" name="corto" barSize={22}>{d.map(x => <Cell key={x.u} fill={col(x.u)} />)}</Bar>
+        <Bar isAnimationActive={ANIM} dataKey="largo" stackId="a" name="largo" barSize={22} radius={[0, 3, 3, 0]}>
+          {d.map(x => <Cell key={x.u} fill={col(x.u, true)} />)}
+          <LabelList dataKey="total" position="right" style={{ fill: C.ink2, fontSize: 12, fontWeight: 500 }} />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+
 /* 1b — precio por hora */
 export function PerHour({ data, h = 300 }) {
   const d = data.filter(x => x.ph).sort((a, b) => a.ph - b.ph)
@@ -96,9 +116,9 @@ export function PerHour({ data, h = 300 }) {
 /* 1c — distribución de precios: cada punto es un programa. HTML con posiciones en % (antes ~700 símbolos de Recharts, lo más pesado de la página). */
 const JDOM = [80, 20000], JTICKS = [100, 200, 500, 1000, 2000, 5000, 10000]
 const jy = v => Math.min(100, Math.max(0, 100 - 100 * (Math.log(v) - Math.log(JDOM[0])) / (Math.log(JDOM[1]) - Math.log(JDOM[0]))))
-export function Jitter({ points, unis, h = 380 }) {
-  const n = UNIS.length, xp = x => 100 * (x + 0.5) / n
-  const med = UNIS.map((u, i) => { const x = unis.find(k => k.u === u); return { u, i, ia: x?.medIA, no: x?.medNo } })
+export function Jitter({ points, unis, us = UNIS, h = 380 }) {
+  const n = us.length, xp = x => 100 * (x + 0.5) / n
+  const med = us.map((u, i) => { const x = unis.find(k => k.u === u); return { u, i, ia: x?.medIA, no: x?.medNo } })
   const bar = (m, v, tint) => v != null && <i key={m.u + (tint ? 'n' : 'i')} title={`${m.u} · mediana ${tint ? 'sin' : 'con'} IA ${S(v)}`} className="absolute h-[3px] -translate-y-1/2 z-[3] rounded-full" style={{ left: `${xp(m.i - 0.36)}%`, width: `${72 / n}%`, top: `${jy(v)}%`, background: col(m.u, tint) }} />
   return (
     <div className="grid grid-cols-[76px_minmax(0,1fr)] text-[12px] pt-2">
@@ -110,7 +130,7 @@ export function Jitter({ points, unis, h = 380 }) {
             style={{ left: `${xp(p.x)}%`, top: `${jy(p.y)}%`, background: col(p.u, !p.ia), opacity: p.ia ? 0.95 : 0.6, zIndex: p.ia ? 2 : 1, boxShadow: p.ia ? '0 0 0 1px #fff' : 'none' }} />)}
           {med.flatMap(m => [bar(m, m.no, true), bar(m, m.ia, false)])}
         </div>
-        <div className="grid mt-2" style={{ gridTemplateColumns: `repeat(${n}, minmax(0,1fr))` }}>{UNIS.map(u => <span key={u} className={`text-center font-medium ${isUsil(u) ? 'text-usil' : 'text-ink2'}`}>{u}</span>)}</div>
+        <div className="grid mt-2" style={{ gridTemplateColumns: `repeat(${n}, minmax(0,1fr))` }}>{us.map(u => <span key={u} className={`text-center font-medium ${isUsil(u) ? 'text-usil' : 'text-ink2'}`}>{u}</span>)}</div>
       </div>
     </div>
   )
@@ -221,6 +241,33 @@ export function PriceLadder({ data }) {
       <div className="grid grid-cols-[190px_minmax(0,1fr)_52px] gap-3 mt-1 text-muted">
         <span />
         <span className="relative h-4">{[100, 500, 1000, 5000, 10000].map(v => <span key={v} className="absolute -translate-x-1/2 whitespace-nowrap" style={{ left: `${lx(v)}%` }}>{v >= 1000 ? `S/ ${v / 1000}k` : S(v)}</span>)}</span>
+        <span />
+      </div>
+    </div>
+  )
+}
+
+/* Ficha 3 (muestra pequeña) — un punto por curso IA con precio, misma escala log que la escalera */
+const LTICKS = [100, 500, 1000, 5000, 10000]
+export function PriceDots({ rows }) {
+  if (!rows.length) return <div className="h-[200px] flex items-center justify-center text-muted text-sm">Ningún curso IA con precio publicado en esta línea</div>
+  return (
+    <div className="text-[12px]">
+      {rows.map(r => (
+        <div key={r.url} className="grid grid-cols-[76px_minmax(0,1fr)_minmax(0,1.6fr)_64px] gap-3 items-center h-[30px]" title={`${r.u} · ${r.n} · ${r.t} · ${S(r.p)}`}>
+          <span className={`truncate font-medium ${isUsil(r.u) ? 'text-usil' : 'text-ink2'}`}>{r.u}</span>
+          <span className="truncate text-ink2">{r.n}</span>
+          <span className="relative h-full">
+            {LTICKS.map(v => <i key={v} className="absolute top-0 bottom-0 w-px bg-line" style={{ left: `${lx(v)}%` }} />)}
+            <i className="absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full" style={{ left: 0, width: `${lx(r.p)}%`, background: col(r.u, true) }} />
+            <span className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full" style={{ left: `${lx(r.p)}%`, background: col(r.u) }} />
+          </span>
+          <span className="text-right text-ink2 tabular-nums">{S(r.p)}</span>
+        </div>
+      ))}
+      <div className="grid grid-cols-[76px_minmax(0,1fr)_minmax(0,1.6fr)_64px] gap-3 mt-1 text-muted">
+        <span /><span />
+        <span className="relative h-4">{LTICKS.map(v => <span key={v} className="absolute -translate-x-1/2 whitespace-nowrap" style={{ left: `${lx(v)}%` }}>{v >= 1000 ? `S/ ${v / 1000}k` : S(v)}</span>)}</span>
         <span />
       </div>
     </div>
