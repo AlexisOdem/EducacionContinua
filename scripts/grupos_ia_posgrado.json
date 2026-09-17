@@ -1,0 +1,53 @@
+{
+  "_leyenda": "Tipos de curso con IA del segmento Posgrado, curados a mano leyendo nombre, sumilla y evidencia_ia. id = 'archivo#indice' de Posgrado/00_Data/processed/programas_*.json. Reverificación 2026-09-16 ronda 2: UPC se recapturó por programa individual (antes 45 categorías, ahora 311 programas; los índices upc# cambiaron por completo) y sus 32 cursos con IA se re-curaron aquí desde cero; se retiraron 'IA en construcción e ingeniería' e 'IA en salud' por quedarse sin ningún curso vigente tras el recorte de ESAN (10 áreas temáticas fuera del dataset). Reverificación 2026-09-16 ronda 3: se quitó 'esan#77' (Área de Marketing) de 'IA en marketing y gestión comercial', una referencia que había quedado huérfana desde el recorte de las áreas temáticas de ESAN en la ronda 2 (ese registro ya no existe en el dataset). También se quitaron upc#307 (Gestión y Desarrollo del Talento) y upc#306 (Dirección de la Comunicación Empresarial) porque su marca IA salía de escanear el cuerpo de su página de categoría (regla distinta al resto) y ambas duplican programas ya desglosados en la misma línea; ver Posgrado/01_Logs/crawl_log.json → reverificacion_2026-09-16_ronda3. UPC queda en 30/311 con IA. Revisar con: python app/scripts/build_segment.py --grupos posgrado",
+  "groups": [
+    {
+      "name": "IA para la dirección y la innovación empresarial",
+      "ids": ["centrum#83", "centrum#134", "centrum#75", "usil_epg#36", "usil_epg#37", "usil_epg#15", "upc#101", "upc#103", "upc#115", "upc#173", "upc#181", "upc#246", "upc#261"]
+    },
+    {
+      "name": "IA en marketing y gestión comercial",
+      "ids": ["centrum#132", "usil_epg#54", "upc#119", "upc#120", "upc#276", "upc#280", "upc#283", "upc#284"]
+    },
+    {
+      "name": "IA en gestión del talento y RRHH",
+      "ids": ["centrum#103", "up#34", "upc#150", "upc#153", "upc#207"]
+    },
+    {
+      "name": "Ciencia de datos y machine learning",
+      "ids": ["centrum#88", "esan#24", "utp#2", "up#55", "upc#44", "upc#248", "upc#257"]
+    },
+    {
+      "name": "Maestría y diplomado en Inteligencia Artificial aplicada a los negocios",
+      "ids": ["upc#47", "upc#298"]
+    },
+    {
+      "name": "IA para el sector público",
+      "ids": ["up#25", "up#26", "up#32", "up#39"]
+    },
+    {
+      "name": "IA en finanzas e inversiones",
+      "ids": ["centrum#127", "upc#88", "upc#89", "upc#111"]
+    },
+    {
+      "name": "IA en operaciones y cadena de suministro",
+      "ids": ["centrum#74", "up#57", "upc#133", "upc#180", "upc#217"]
+    },
+    {
+      "name": "IA en sistemas, ciberseguridad y desarrollo",
+      "ids": ["usil_epg#38", "usil_epg#39"]
+    },
+    {
+      "name": "IA para la docencia y el aprendizaje",
+      "ids": ["usil_epg#27", "usil_epg#28", "upc#82"]
+    },
+    {
+      "name": "IA en derecho y regulación",
+      "ids": ["usil_epg#22", "upc#75"]
+    },
+    {
+      "name": "Creación de contenidos y comunicación corporativa con IA",
+      "ids": ["usil_epg#58", "upc#48"]
+    }
+  ]
+}

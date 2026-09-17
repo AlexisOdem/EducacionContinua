@@ -1,0 +1,25 @@
+{
+ "institutos": {
+  "titulo": "Institutos",
+  "benchmark": "USIL IE",
+  "benchmark_largo": "Instituto de Emprendedores de USIL",
+  "fecha": "2026-09-15",
+  "tipos": [
+   "Curso corto",
+   "Programa",
+   "Diplomado",
+   "Certificación"
+  ]
+ },
+ "posgrado": {
+  "titulo": "Posgrado",
+  "benchmark": "USIL EPG",
+  "benchmark_largo": "Escuela de Postgrado de USIL",
+  "fecha": "2026-09-15",
+  "tipos": [
+   "Educación ejecutiva",
+   "Maestría y MBA",
+   "Doctorado"
+  ]
+ }
+}

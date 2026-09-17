@@ -1,0 +1,53 @@
+{
+  "_leyenda": "Tipos de curso con IA del segmento Institutos, curados a mano leyendo el nombre y la sumilla de los cursos con IA. Reverificación 2026-09-16: USIL IE pasó de 11 a 17 programas y de 3 a 6 con IA (ids usil_instituto_emprendedores#11, #12 y #13, ver notas de confianza en build_segment.py). Reverificación 2026-09-16 ronda 2: TECSUP se recapturó desde su REST API (antes placeholder Lorem Ipsum) y pasó de 1 a 5 candidatos IA; el id 'tecsup#81' (curso viejo derivado del slug) se reemplazó por los 5 ids reales, repartidos en los grupos que ya existían más uno nuevo; se fusionaron 4 grupos de un solo curso con el más afín para quedar en 12 grupos. Reverificación 2026-09-16 ronda 3: de los 5 candidatos de TECSUP, 3 se quitaron por ser mención de paso en la descripción oficial (no en h1/URL): tecsup#0 (Planner de Mantenimiento con IA), tecsup#19 (PMBOK con IA generativa) y tecsup#109 (Power BI con objetos de IA); quedan tecsup#8 (Desarrollo Web Java con Vibe Coding) y tecsup#91 (Diseña tu StartUp con IA, con IA en título y URL); ver Institutos/01_Logs/crawl_log.json → reverificacion_2026-09-16_ronda3. id = 'archivo#indice' de Institutos/00_Data/processed/programas_*.json. Revisar con: python app/scripts/build_segment.py --grupos institutos",
+  "groups": [
+    {
+      "name": "IA para negocios y emprendedores",
+      "ids": ["cibertec#72", "toulouse#19", "senati#28", "senati#26", "senati#29", "isil#53", "isil#43", "tecsup#91"]
+    },
+    {
+      "name": "Ciencia de datos y machine learning",
+      "ids": ["cibertec#77", "cibertec#91", "isil#3", "isil#29", "toulouse#29"]
+    },
+    {
+      "name": "IA generativa para contenidos",
+      "ids": ["cibertec#14", "cibertec#51", "toulouse#50", "isil#30", "usil_instituto_emprendedores#5"]
+    },
+    {
+      "name": "IA aplicada al marketing y redes sociales",
+      "ids": ["toulouse#21", "toulouse#13", "toulouse#59", "cibertec#19", "usil_instituto_emprendedores#13"]
+    },
+    {
+      "name": "IA para kids & teens",
+      "ids": ["cibertec#36", "cibertec#37", "cibertec#38"]
+    },
+    {
+      "name": "IA para la docencia",
+      "ids": ["cibertec#69", "toulouse#7"]
+    },
+    {
+      "name": "IA en compras, procesos y gestión de proyectos",
+      "ids": ["cibertec#68", "isil#24"]
+    },
+    {
+      "name": "IA en ofimática y presentaciones",
+      "ids": ["cibertec#43", "cibertec#54", "usil_instituto_emprendedores#11"]
+    },
+    {
+      "name": "Desarrollo de software y vibe coding con IA",
+      "ids": ["cibertec#89", "cibertec#117", "tecsup#8"]
+    },
+    {
+      "name": "Analítica y dashboards con IA",
+      "ids": ["toulouse#9", "usil_instituto_emprendedores#6"]
+    },
+    {
+      "name": "Fundamentos y prompting de IA",
+      "ids": ["cibertec#118", "usil_instituto_emprendedores#8", "usil_instituto_emprendedores#12"]
+    },
+    {
+      "name": "IA en RRHH y gestión legal",
+      "ids": ["cibertec#71", "cibertec#70"]
+    }
+  ]
+}
