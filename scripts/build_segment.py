@@ -39,6 +39,17 @@ SIN_IA = {
 RENOMBRES = {
     'https://www.toulouselautrec.edu.pe/cursos/big-data-business-intelligence': 'Curso de Big Data & Business Intelligence',
 }
+# Maestrías y MBA cuyo tema ES la IA o los datos (no un programa de otra disciplina con un módulo de IA
+# adentro): el título completo nombra "Inteligencia Artificial", "Data Science" o "Data Analytics" como el
+# programa mismo. Se marcan con `ded=true` en la fila para el gráfico "Programas de IA en maestrías y
+# doctorados" (solo posgrado); ver criterio en NOTAS['posgrado'].
+DEDICADOS = {
+    'https://postgrado.upc.edu.pe/landings/maestrias/sistemas-tecnologia/data-science/',
+    'https://postgrado.upc.edu.pe/landings/maestrias/sistemas-tecnologia/inteligencia-artificial/',
+    'https://www.esan.edu.pe/maestrias/data-analytics-artificial-intelligence-semipresencial',
+    'https://www.postgradoutp.edu.pe/landing-mcia',
+    'https://pbs.edu.pe/maestrias/business-analytics',
+}
 # Nombres que el crawl no pudo extraer (placeholder de la plantilla o vacío): se derivan del slug.
 GENERICOS = {'nuestros cursos', 'nuestros programas', ''}
 
@@ -76,6 +87,9 @@ INSTITUTOS = dict(
     },
     excluir_nv=(),  # institutos: ninguna fila se descarta
     no_comparable=(),
+    # "Amplitud de la apuesta IA" / "IA de uso frente a IA de construcción" (sección 5 y 3 del dashboard):
+    # construcción = temas de datos, machine learning o desarrollo de software con IA; el resto es uso.
+    grupos_construccion=['Ciencia de datos y machine learning', 'Desarrollo de software y vibe coding con IA'],
 )
 
 POSGRADO = dict(
@@ -104,6 +118,7 @@ POSGRADO = dict(
     excluir_nv=('área temática (agrupa varios pee/diplomas)', 'segunda especialidad'),
     # el agregado ya no es por institución: cada fila trae su propio 'es_categoria' (ver programas_upc.json).
     no_comparable=(),
+    grupos_construccion=['Ciencia de datos y machine learning', 'Maestría y diplomado en Inteligencia Artificial aplicada a los negocios'],
 )
 
 NOTAS = {
@@ -123,6 +138,7 @@ NOTAS = {
         ['U. Pacífico', 'Pacífico Business School se recapturó en su dominio correcto (pbs.edu.pe); el dominio usado en el crawl original ya no resuelve. Escuela de Gestión Pública sigue sesgando sus líneas hacia ese tema.'],
         ['Precio', 'Ninguna institución de posgrado publica precio. Sin sección de precio en este segmento.'],
         ['Líneas', 'Mismo clasificador por palabras clave de educación continua: "Competencias Digitales e IA Aplicada para Educadores" (USIL EPG) cae en Tecnología y Software, no en Educación.'],
+        ['"De IA/datos" y "construcción"', '"De IA/datos" (gráfico de maestrías y doctorados) es una maestría cuyo título completo nombra Inteligencia Artificial, Data Science o Data Analytics como el programa mismo, no una maestría de otra disciplina con un módulo de IA adentro: son 5 en el mercado (`DEDICADOS` en este script), y la única maestría con IA de USIL EPG (una certificación dentro del Executive MBA con ESIC) no califica y cuenta como "aplica IA". "Construcción" (gráfico de uso frente a construcción) son los cursos IA de ciencia de datos/machine learning o de la maestría y el diplomado en IA para los negocios (`grupos_construccion`); el resto -prompting, contenidos, marketing, gestión- es "uso". Ambos criterios son editoriales, documentados en el caption de cada gráfico.'],
     ],
 }
 
@@ -161,6 +177,8 @@ def build(seg):
                 t=t, nv=nv, agg=bool(r.get('es_categoria')),
                 ia=ia, p=p, h=h, ph=round(p / h) if p and h else None,
                 g=grupo_de.get(rid) if ia else None,
+                # ded = maestría/MBA dedicada a IA o datos (ver DEDICADOS arriba); solo aplica a posgrado.
+                ded=url in DEDICADOS,
                 m=r.get('modalidad'), d=r.get('duracion'), url=url,
             ))
         if excluidos: cambios.append((uni, 'excluidas', f'{excluidos} filas fuera del dataset', 'ver excluir_nv'))
@@ -170,6 +188,7 @@ def build(seg):
         benchmark=seg['benchmark'], benchmark_largo=seg['benchmark_largo'],
         unis=[u for u, _ in seg['unis']], no_comparable=list(seg['no_comparable']),
         lineas=list(NOMBRES), tipos=seg['tipos'], corto=seg['corto'], largo=seg['largo'],
+        construccion=seg.get('grupos_construccion', []),
         notas=NOTAS[seg['key']], rows=out,
     )
     dest = os.path.join(ROOT, 'app', 'src', f'data_{seg["key"]}.json')

@@ -16,11 +16,11 @@ Una sola app con tres formas de análisis, elegibles en la barra lateral y enlaz
 |---|---|---|---|---|
 | (ninguno) o `ec` | Educación continua | USIL | `src/data.json` · 905 programas, 6 universidades | `src/acciones.js` |
 | `institutos` | Institutos | USIL IE (Instituto de Emprendedores) | `src/data_institutos.json` · 513 programas, 6 institutos | `src/acciones_institutos.js` |
-| `posgrado` | Posgrado | USIL EPG (Escuela de Postgrado) | `src/data_posgrado.json` · 710 programas, 6 escuelas | `src/acciones_posgrado.js` |
+| `posgrado` | Posgrado | USIL EPG (Escuela de Postgrado) | `src/data_posgrado.json` · 700 programas, 6 escuelas | `src/acciones_posgrado.js` |
 
 Educación continua conserva sus 6 secciones, su ficha por línea de carrera y sus cifras. Institutos y posgrado
 tienen 6 secciones propias (`src/segmento.jsx`), sin precio (ninguno de los dos segmentos lo publica de forma
-comparable) y con un panel final "Qué no dice este dato" con los límites del crawl.
+comparable). Los límites del crawl (`notas` en `segmentos_meta.json`) ya no se muestran en la página; quedan en el JSON y en `PLAN_SEGMENTOS.md`.
 
 Cada gráfico de las tres vistas, y cada uno de sus 5 KPI, tiene un icono ⓘ (`help` en `Panel` y en `Kpi`,
 `src/ui.jsx`, mismo icono y mismo recuadro): al pasar el mouse o enfocar con teclado muestra qué muestra, cómo
@@ -148,6 +148,30 @@ Grupos curados a mano leyendo el nombre y la sumilla de cada curso con IA:
 Los segmentos nuevos se agrupan por `id` y no por URL (ver arriba). `python scripts/build_segment.py --grupos` imprime
 cada grupo con sus cursos para revisarlo, y el build avisa si algún curso con IA se quedó sin grupo.
 
+## Tres gráficos nuevos (Institutos y Posgrado)
+
+Añadidos en `src/segmento.jsx` (cálculo en `stats.js`: `amplitud`, `construccionUso`, `maestrias`, `doctorados`;
+componentes en `charts.jsx`: `AmplitudGrid`, `ConstruccionUso`, `MastersBars`, `DoctoralDots`). Ninguno toca
+educación continua. Detalle y cifras verificadas en `PLAN_SEGMENTOS.md` § 6.
+
+- **Amplitud de la apuesta IA** (abre la sección 5, ambos segmentos): un cuadrito por cada uno de los 12 temas
+  IA curados del segmento (mismo orden en todas las filas, de más a menos programas IA en el mercado), lleno si
+  la institución tiene ≥1 programa ahí. A la derecha, temas cubiertos y total de programas IA.
+- **IA de uso frente a IA de construcción** (tercer panel de la sección 3, ambos segmentos): de los programas IA
+  de cada institución, cuántos son "de construcción" (datos, machine learning o desarrollo de software) frente a
+  "de uso" (el resto). La lista de grupos de construcción es editorial, `grupos_construccion` en
+  `build_segment.py` y se emite como `construccion` en cada `data_*.json`: Institutos = Ciencia de datos y
+  machine learning + Desarrollo de software y vibe coding con IA; Posgrado = Ciencia de datos y machine learning
+  + Maestría y diplomado en Inteligencia Artificial aplicada a los negocios.
+- **Programas de IA en maestrías y doctorados** (cierra la sección 3, solo posgrado): a la izquierda, el
+  catálogo de maestrías y MBA de cada escuela en tres tramos (dedicada a IA/datos, aplica IA en otra disciplina,
+  sin IA); a la derecha, un punto por doctorado del catálogo (relleno si tiene IA). Las 5 maestrías "dedicadas"
+  son una decisión editorial (`DEDICADOS` en `build_segment.py`, emitidas como `ded` en cada fila): UPC Data
+  Science, UPC Inteligencia Artificial, ESAN Data Analytics & Artificial Intelligence, UTP Ciencia de Datos e
+  IA, y U. Pacífico MBA con especialización en Business Analytics. USIL EPG queda en 0 de 16: su única maestría
+  con IA es una certificación dentro del Executive MBA con ESIC, y no es una maestría dedicada a IA o datos.
+  Ver el criterio completo en `NOTAS['posgrado']` de `build_segment.py`.
+
 ## Parámetros de URL
 
 `?seg=institutos` · `?seg=posgrado` · `?tipo=Curso%20corto` (las opciones cambian según el segmento) · `?linea=Salud`
@@ -156,5 +180,11 @@ animaciones, para capturas o PDF).
 
 ## Deploy
 
-`npx vercel --prod` desde esta carpeta (framework Vite detectado automáticamente), o importar el repo en vercel.com con
-Root Directory = `app`.
+Sitio publicado: https://alexisodem.github.io/EducacionContinua/ (GitHub Pages; se compila solo con
+`.github/workflows/deploy.yml` en cada push a `main` de AlexisOdem/EducacionContinua; `vite.config.js` usa `base: './'`).
+
+Para publicar desde el repositorio privado (donde viven `00_Data/`, `Institutos/`, `Posgrado/` y las notas), desde la raíz:
+
+```bash
+git subtree push --prefix=app alexisodem main
+```

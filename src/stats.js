@@ -159,6 +159,55 @@ export function makeStats(D) {
     return { ls, tot }
   }
 
+  /* 5 (apertura) — amplitud de la apuesta IA: cuántos de los N temas curados (`g`) cubre cada institución y
+     con cuántos programas IA. El orden de los temas (mismo para todas las filas) sale de estos mismos `rows`,
+     de mayor a menor cantidad total de programas IA en ese tema; así el orden no cambia cuando se filtra por tipo,
+     salvo que un tema se quede sin ningún programa con el filtro activo. */
+  function amplitud(rows) {
+    const ia = rows.filter(r => r.ia && r.g)
+    const total = {}; ia.forEach(r => { total[r.g] = (total[r.g] || 0) + 1 })
+    const grupos = Object.keys(total).sort((a, b) => total[b] - total[a])
+    const unis = UNIS.map(u => {
+      const urs = ia.filter(r => r.u === u)
+      const temas = new Set(urs.map(r => r.g))
+      return { u, temas: temas.size, programas: urs.length, has: grupos.map(g => temas.has(g)) }
+    }).sort((a, b) => b.temas - a.temas || b.programas - a.programas)
+    return { grupos, unis }
+  }
+
+  /* 3 — IA de uso frente a IA de construcción: reparto de los programas IA de cada institución entre los
+     temas "de construcción" (D.construccion, decisión editorial) y el resto ("de uso"). Solo instituciones
+     con al menos un programa IA, de mayor a menor total. */
+  const CONSTRUCCION = D.construccion || []
+  function construccionUso(rows) {
+    return UNIS.map(u => {
+      const urs = rows.filter(r => r.u === u && r.ia)
+      const construccion = urs.filter(r => CONSTRUCCION.includes(r.g)).length
+      return { u, construccion, uso: urs.length - construccion, total: urs.length }
+    }).filter(x => x.total).sort((a, b) => b.total - a.total)
+  }
+
+  /* Solo posgrado — "Programas de IA en maestrías y doctorados" (cierra la sección 3).
+     Maestrías: de las filas de nivel 'Maestría y MBA' sin agregar, tres tramos por institución:
+     dedicadas a IA/datos (`ded`, ver DEDICADOS en build_segment.py), aplica IA (con IA pero no dedicada) y sin IA.
+     Un punto por maestría con IA (oscuro = dedicada, claro = aplica IA en otra disciplina); `rs` trae esos
+     programas ordenados con las dedicadas primero, para pintarlos en ese orden. Ordenadas por dedicadas desc,
+     luego aplica IA desc, luego total. Doctorados: catálogo completo por institución, con o sin IA. */
+  function maestrias(rows) {
+    const mm = rows.filter(r => r.t === 'Maestría y MBA' && !r.agg)
+    return UNIS.map(u => {
+      const urs = mm.filter(r => r.u === u)
+      const rs = urs.filter(r => r.ia).sort((a, b) => (b.ded - a.ded) || (a.n > b.n ? 1 : -1))
+      const ded = rs.filter(r => r.ded).length
+      return { u, rs, ded, aplica: rs.length - ded, total: urs.length }
+    }).sort((a, b) => b.ded - a.ded || b.aplica - a.aplica || b.total - a.total)
+  }
+  function doctorados(rows) {
+    const doc = rows.filter(r => r.t === 'Doctorado')
+    const unis = UNIS.map(u => ({ u, rs: doc.filter(r => r.u === u).sort((a, b) => a.n > b.n ? 1 : -1) }))
+    return { unis, total: doc.length, ia: doc.filter(r => r.ia).length }
+  }
+
   // puntos para el jitter de precios (us = columnas del gráfico, por si se ocultan universidades sin precio)
   const pricePoints = (rows, us = UNIS) => rows.filter(r => r.p && us.includes(r.u)).map(r => ({ x: us.indexOf(r.u) + (hash(r.n) - 0.5) * 0.6, y: r.p, u: r.u, ia: r.ia, n: r.n, t: r.t }))
 
@@ -193,6 +242,7 @@ export function makeStats(D) {
     FECHA: D.fecha, RANKING_FUENTE: D.ranking_fuente, NOTAS: D.notas || [], BENCHMARK: D.benchmark || USIL,
     filt, byUni, mercado, puestoPrev, premiumLineas, premiumUni, premiumByUni, escalera,
     heat, grupos, formatos, porNivel, mapaC, cuotaLineas, pricePoints, linea,
+    amplitud, construccionUso, maestrias, doctorados,
   }
 }
 

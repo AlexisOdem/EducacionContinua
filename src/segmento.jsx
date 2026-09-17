@@ -9,8 +9,8 @@ import { ACCIONES as ACC_POS, VARIABLES as VAR_POS } from './acciones_posgrado'
 import * as CH from './charts'
 const { Reveal, Segmented, Legend, ActionRow, RISK, C } = CH
 // Gráficos memorizados: cambiar el modo del mapa de calor o el filtro de la tabla no los vuelve a dibujar.
-const [Prevalence, StackedNivel, Mapa, Butterfly, Dumbbell, Heat, GroupTable, ActionMatrix] =
-  [CH.Prevalence, CH.StackedNivel, CH.Mapa, CH.Butterfly, CH.Dumbbell, CH.Heat, CH.GroupTable, CH.ActionMatrix].map(c => memo(c))
+const [Prevalence, StackedNivel, Mapa, Butterfly, Dumbbell, Heat, GroupTable, ActionMatrix, ConstruccionUso, AmplitudGrid, MastersDots, DoctoralDots] =
+  [CH.Prevalence, CH.StackedNivel, CH.Mapa, CH.Butterfly, CH.Dumbbell, CH.Heat, CH.GroupTable, CH.ActionMatrix, CH.ConstruccionUso, CH.AmplitudGrid, CH.MastersDots, CH.DoctoralDots].map(c => memo(c))
 
 /* Las filas de los dos segmentos y sus acciones viven en este módulo, que App.jsx carga con lazy():
    educación continua no paga su peso (unas 930 filas más) al abrir la página. */
@@ -40,9 +40,11 @@ const helpDe = (b, nv, esPos) => ({
   nivelIA: { que: `El reparto, en %, de los programas con IA de cada institución entre los ${esPos ? 'niveles' : 'formatos'} del catálogo.`, como: 'Barras al 100%: el color que domina es el nivel donde esa institución concentra su oferta de IA.', mira: `En qué ${nv} vende IA ${b} y si coincide con dónde lo hace la competencia.` },
   heat: { que: 'Una tabla: las filas son líneas de carrera, las columnas instituciones; cada celda es su número de programas con IA.', como: 'Cuanto más oscura la celda, más oferta de IA tiene esa institución en esa línea.', mira: `Las filas donde ${b} tiene celdas claras o vacías mientras la competencia tiene celdas oscuras.` },
   grupos: { que: 'Cada fila es un tema de curso con IA (por ejemplo, IA para el sector público); los puntos muestran qué competidores lo venden.', como: 'El círculo o la equis de la derecha dicen si la institución tiene ese tipo de programa; clic en la fila despliega los programas.', mira: `Las filas con la equis y varios competidores marcados: son temas que el mercado ya vende y ${b} no.` },
+  amplitud: { que: 'Cada fila es una institución con al menos un programa de IA; los 12 cuadros son los temas de IA curados para este segmento.', como: 'Cuadro lleno = tiene un programa en ese tema; están ordenadas de más a menos temas cubiertos, y a la derecha el total de temas y de programas con IA.', mira: `Si ${b} apuesta ancho, repartido en varios temas, o se concentra en uno o dos frente a la competencia.` },
+  construccion: { que: 'De los programas con IA de cada institución, cuántos son de construir IA (datos, machine learning, desarrollo de software) y cuántos son de usarla en otra disciplina.', como: 'El tramo oscuro es construcción, el claro es uso; a la derecha, cuántos de construcción tiene sobre el total de sus programas con IA.', mira: `Si ${b} tiene algún programa de construcción o si toda su oferta de IA es para usarla, no para construirla.` },
+  maestriasDoc: { que: `A la izquierda, un punto por cada maestría o MBA con IA de cada escuela; a la derecha, un punto por cada doctorado de su catálogo.`, como: 'El punto oscuro es una maestría dedicada a IA o datos, el claro aplica IA en otra disciplina; en doctorados, relleno significa que tiene IA y hueco que no.', mira: `Si ${b} tiene alguna maestría dedicada a IA o algún doctorado con IA, y qué otras escuelas sí la tienen.` },
   matriz: { que: 'Cada burbuja numerada es una de las acciones propuestas, ubicada según su oportunidad y su dificultad.', como: 'Arriba a la izquierda (zona dorada) están las acciones de mayor impacto y más fáciles de ejecutar; el color de la burbuja es su riesgo.', mira: 'Qué acciones caen en la zona dorada: por ahí conviene empezar.' },
   variables: { que: 'Las variables de negocio que resume el análisis, con un círculo numerado por cada acción que las mueve.', como: 'Pasa el mouse o el teclado sobre una variable para ver su definición completa y el indicador que la mide.', mira: 'Qué variable concentra más acciones: es la que más se mueve si se ejecuta la lista completa.' },
-  notas: { que: 'Las advertencias de calidad de dato que aplican a este segmento: qué instituciones cuentan por categoría, dónde falta precio, qué catálogos son menos fiables.', como: 'Cada punto es independiente entre sí; léelos antes de citar una cifra del segmento en una decisión.', mira: 'Las notas sobre las instituciones que estés comparando directamente con la tuya.' },
   kpiMercado: { que: `Cuántos programas del mercado (${b} y su competencia) ya incorporan IA.`, como: 'Es el tamaño del fenómeno en el segmento antes de mirar cómo le va a cada institución.', mira: 'Si el % de mercado es alto, la IA ya es estándar en el segmento y no una excepción.' },
   kpiPrevalencia: { que: `Qué porcentaje del catálogo de ${b} ya tiene IA, y en qué puesto queda frente a la competencia comparable.`, como: 'El puesto solo cuenta instituciones comparables (mismo tipo de conteo, programa por programa).', mira: `Si ${b} lidera el segmento o se está quedando atrás del resto.` },
   kpiLineas: { que: `En cuántas líneas de carrera distintas ${b} ya vende al menos un programa con IA.`, como: 'Compara ese número con el total de líneas donde la institución tiene catálogo: cuanto más cerca, más repartida está su oferta de IA.', mira: `Si ${b} concentra su IA en una sola línea o la reparte en varias.` },
@@ -73,6 +75,10 @@ export default function SegmentView({ seg, tipo }) {
   const heatRows = useMemo(() => ds.heat(rows), [ds, rows])
   const gs = useMemo(() => ds.grupos(rows), [ds, rows])
   const brechas = useMemo(() => gs.filter(g => !g.nUsil && g.k), [gs])
+  const amplitud = useMemo(() => ds.amplitud(rows), [ds, rows])
+  const construccion = useMemo(() => ds.construccionUso(rows), [ds, rows])
+  const maestriasData = useMemo(() => (esPos ? ds.maestrias(rows) : null), [ds, rows, esPos])
+  const doctoradosData = useMemo(() => (esPos ? ds.doctorados(rows) : null), [ds, rows, esPos])
 
   const aggU = UNIS.filter(u => unis.find(x => x.u === u)?.agg)     // instituciones enteras por categoría (rayado del bubble/barra)
   const hayCategorias = rows.some(r => r.agg)                       // hay categorías sueltas aunque ninguna institución sea 100% categoría (p. ej. UPC)
@@ -145,6 +151,23 @@ export default function SegmentView({ seg, tipo }) {
           <StackedNivel data={nivelIA} tipos={TIPOS} pct vacio="Ninguna institución vende IA con este filtro" />
         </Panel></Reveal>
       </div>
+      <Reveal minH={260} className="mb-14"><Panel title="IA de uso frente a IA de construcción" caption="Construcción = programas de datos, machine learning o desarrollo de software con IA; uso = aplicar IA en otras disciplinas. Criterio editorial." help={H.construccion}>
+        <Legend items={[[C.usil, `${BENCHMARK} · construcción`], [C.usilT, `${BENCHMARK} · uso`], [C.comp, 'Competidor · construcción'], [C.compT, 'Competidor · uso']]} />
+        <ConstruccionUso data={construccion} />
+      </Panel></Reveal>
+      {esPos && <Reveal minH={360} className="mb-14"><Panel title="Programas de IA en maestrías y doctorados" caption="De IA/datos = el tema del título es IA, datos o analítica. Aplica IA = programa de otra disciplina con IA en su contenido." help={H.maestriasDoc}>
+        <Legend items={[[C.comp, 'De IA/datos', 'dot'], [C.compT, 'Aplica IA', 'dot'], ['hollow', 'Doctorado sin IA']]} />
+        <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
+          <div>
+            <h4 className="text-[13px] font-semibold text-usil-deep mb-3">Maestrías y MBA</h4>
+            <MastersDots data={maestriasData} />
+          </div>
+          <div>
+            <h4 className="text-[13px] font-semibold text-usil-deep mb-3">Doctorados</h4>
+            <DoctoralDots data={doctoradosData} />
+          </div>
+        </div>
+      </Panel></Reveal>}
 
       {/* 4 */}
       <SectionTitle id="s4" n="4">Dónde hay oferta y dónde falta</SectionTitle>
@@ -155,6 +178,9 @@ export default function SegmentView({ seg, tipo }) {
 
       {/* 5 */}
       <SectionTitle id="s5" n="5">Lo que otros venden con IA y {BENCHMARK} no</SectionTitle>
+      <Reveal minH={280} className="mb-8"><Panel title="Amplitud de la apuesta IA" caption="Cada cuadro es uno de los 12 temas IA del segmento; lleno = la institución tiene al menos un programa ahí." help={H.amplitud}>
+        <AmplitudGrid data={amplitud} />
+      </Panel></Reveal>
       <Reveal minH={400} className="mb-14"><Panel title="Tipos de curso con IA en el mercado"
         aside={<Segmented value={soloBrechas} onChange={setSoloBrechas} options={['Todos', `${BENCHMARK} no tiene`]} small />}
         caption={`Prev. = % de los ${COMPS.length} competidores con al menos un curso de ese tipo. Clic en una fila para ver los cursos.${hayCategorias ? ` * = registro por categoría (${catRows.length} sin página propia).` : ''}`} help={H.grupos}>
@@ -186,17 +212,6 @@ export default function SegmentView({ seg, tipo }) {
         {acciones.map((a, i) => <Reveal key={a.title} minH={120} delay={i * 0.06}><ActionRow a={a} i={i} /></Reveal>)}
       </div>
 
-      {/* Qué no dice este dato */}
-      <Reveal minH={200} className="mb-10"><Panel title="Qué no dice este dato" help={H.notas}>
-        <div className="grid md:grid-cols-2 gap-x-8 divide-y md:divide-y-0 divide-line">
-          {ds.NOTAS.map(([k, t]) => (
-            <div key={k} className="py-2 md:py-1.5">
-              <span className="text-[13px] font-semibold text-usil-deep">{k}. </span>
-              <span className="text-[13px] text-ink2">{t}</span>
-            </div>
-          ))}
-        </div>
-      </Panel></Reveal>
 
       <footer className="text-xs text-muted pb-8">Catálogos públicos al {D.fecha} · sin precio publicado comparable · {mkt.total} programas de {UNIS.length} instituciones</footer>
     </>

@@ -50,7 +50,9 @@ export function Segmented({ value, onChange, options, small }) {
 
 export const Legend = ({ items }) => (
   <div className="flex flex-wrap gap-4 text-[12.5px] text-ink2 mb-2">
-    {items.map(([c, t, dash]) => <span key={t} className="flex items-center gap-1.5">{dash ? <i className="inline-block w-4 border-t-2 border-dashed border-ink" /> : <i className="inline-block w-3 h-3 rounded-[3px]" style={{ background: c, border: c === C.accentSoft ? `1px solid ${C.gold}` : c === 'hatch' ? `1px dashed ${C.muted}` : 0, ...(c === 'hatch' ? { background: 'repeating-linear-gradient(45deg,#fff 0 3px,#CFD5DC 3px 5px)' } : {}) }} />}{t}</span>)}
+    {items.map(([c, t, dash]) => <span key={t} className="flex items-center gap-1.5">{dash === 'dot' ? <i className="inline-block w-3 h-3 rounded-full" style={{ background: c }} /> : dash ? <i className="inline-block w-4 border-t-2 border-dashed border-ink" /> : c === 'hollow'
+      ? <i className="inline-block w-3 h-3 rounded-full" style={{ background: '#fff', border: `2px solid ${C.muted}` }} />
+      : <i className="inline-block w-3 h-3 rounded-[3px]" style={{ background: c, border: c === C.accentSoft ? `1px solid ${C.gold}` : c === 'hatch' ? `1px dashed ${C.muted}` : 0, ...(c === 'hatch' ? { background: 'repeating-linear-gradient(45deg,#fff 0 3px,#CFD5DC 3px 5px)' } : {}) }} />}{t}</span>)}
   </div>
 )
 
@@ -431,6 +433,98 @@ export function Butterfly({ data, h = 300, izqLbl = 'cursos cortos', derLbl = 'p
         <ReferenceLine x={0} stroke={C.ink} />
       </BarChart>
     </ResponsiveContainer>
+  )
+}
+
+/* 3 (segmentos) — IA de uso frente a IA de construcción: apilado de 2 tramos, construcción (color pleno)
+   y uso (tinte); al final, "x de N" (construcción de total IA). Solo instituciones con al menos un curso IA. */
+export function ConstruccionUso({ data, h = 260 }) {
+  if (!data.length) return <div className="flex items-center justify-center text-muted text-sm" style={{ height: h }}>Ninguna institución vende IA con este filtro</div>
+  const inside = dark => ({ x, y, width, height, value }) => {
+    if (!value || width < 16) return null
+    return <text x={x + width / 2} y={y + height / 2 + 4} textAnchor="middle" fontSize={11} fontWeight={600} fill={dark ? '#fff' : C.ink2}>{value}</text>
+  }
+  const endLbl = ({ x, y, width, height, index }) => {
+    const r = data[index]; if (!r) return null
+    return <text x={x + width + 6} y={y + height / 2 + 4} fontSize={12} fontWeight={500} fill={C.ink2}>{r.construccion} de {r.total}</text>
+  }
+  return (
+    <ResponsiveContainer width="100%" height={Math.max(h, data.length * 34 + 30)}>
+      <BarChart data={data} layout="vertical" margin={{ left: 0, right: 70, top: 4, bottom: 4 }} barCategoryGap={10}>
+        {grid}
+        <XAxis type="number" tickLine={false} axisLine={false} allowDecimals={false} />
+        <YAxis type="category" dataKey="u" width={80} tickLine={false} axisLine={false} tick={tickU} />
+        <Tooltip {...tip} formatter={(v, k) => [v, k === 'construccion' ? 'Construcción' : 'Uso']} />
+        <Bar isAnimationActive={ANIM} dataKey="construccion" stackId="a" name="construccion" barSize={22}>
+          {data.map(x => <Cell key={x.u} fill={col(x.u)} />)}
+          <LabelList dataKey="construccion" content={inside(true)} />
+        </Bar>
+        <Bar isAnimationActive={ANIM} dataKey="uso" stackId="a" name="uso" barSize={22} radius={[0, 3, 3, 0]}>
+          {data.map(x => <Cell key={x.u} fill={col(x.u, true)} />)}
+          <LabelList dataKey="uso" content={inside(false)} />
+          <LabelList dataKey="total" content={endLbl} />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+
+/* 5 (apertura, segmentos) — amplitud de la apuesta IA: un cuadrito por tema curado (mismo orden en todas
+   las filas, de mayor a menor programas IA en el mercado), lleno si la institución tiene ≥1 programa ahí. */
+export function AmplitudGrid({ data }) {
+  const { grupos, unis } = data
+  return (
+    <div className="overflow-x-auto">
+      <div className="flex flex-col gap-2 text-[13px] min-w-[520px]">
+        {unis.map(u => (
+          <div key={u.u} className="grid grid-cols-[110px_minmax(0,1fr)_150px] gap-3 items-center">
+            <span className={`truncate ${isUsil(u.u) ? 'text-usil font-semibold' : 'text-ink2 font-medium'}`}>{u.u}</span>
+            <span className="flex flex-nowrap gap-1.5">
+              {grupos.map((g, i) => (
+                <i key={g} title={g} className="w-4 h-4 rounded-[3px] shrink-0" style={{ background: u.has[i] ? col(u.u) : 'transparent', border: `1.5px solid ${col(u.u, !u.has[i])}` }} />
+              ))}
+            </span>
+            <span className="text-right text-ink2 tabular-nums whitespace-nowrap">{u.temas} tema{u.temas === 1 ? '' : 's'} · {u.programas} programa{u.programas === 1 ? '' : 's'} IA</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* Solo posgrado, cierre de la sección 3 — maestrías: un punto por maestría con IA de cada escuela, misma
+   gramática que los doctorados. Oscuro = dedicada a IA/datos, claro = aplica IA en otra disciplina. */
+export function MastersDots({ data }) {
+  return (
+    <div className="flex flex-col gap-3">
+      {data.map(x => (
+        <div key={x.u} className="flex items-center gap-3 text-[13px]">
+          <span className={`w-[92px] shrink-0 truncate ${isUsil(x.u) ? 'text-usil font-semibold' : 'text-ink2 font-medium'}`}>{x.u}</span>
+          {x.rs.length
+            ? <span className="flex flex-wrap gap-1.5">{x.rs.map(r => <i key={r.id || r.url} title={r.n} className="w-3.5 h-3.5 rounded-full shrink-0" style={{ background: r.ded ? col(x.u) : col(x.u, true), border: `2px solid ${col(x.u)}` }} />)}</span>
+            : <span className="text-muted">—</span>}
+          <span className="ml-auto shrink-0 text-right text-ink2 tabular-nums">{x.rs.length} de {x.total} maestrías</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* Solo posgrado, cierre de la sección 3 — doctorados: un punto por doctorado del catálogo, relleno si tiene IA. */
+export function DoctoralDots({ data }) {
+  const { unis, total, ia } = data
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-[13px] font-semibold text-usil-deep">{total} doctorados en el mercado · {ia} con IA</div>
+      {unis.map(x => (
+        <div key={x.u} className="flex items-center gap-3 text-[13px]">
+          <span className={`w-[92px] shrink-0 truncate ${isUsil(x.u) ? 'text-usil font-semibold' : 'text-ink2 font-medium'}`}>{x.u}</span>
+          {x.rs.length
+            ? <span className="flex gap-1.5">{x.rs.map(r => <i key={r.id} title={r.n.replace(/^Doctorado en /, '')} className="w-3.5 h-3.5 rounded-full shrink-0" style={{ background: r.ia ? col(x.u) : '#fff', border: `2px solid ${col(x.u)}` }} />)}</span>
+            : <span className="text-muted">—</span>}
+        </div>
+      ))}
+    </div>
   )
 }
 
