@@ -174,7 +174,8 @@ educación continua. Detalle y cifras verificadas en `PLAN_SEGMENTOS.md` § 6.
 
 ## Parámetros de URL
 
-`?seg=institutos` · `?seg=posgrado` · `?tipo=Curso%20corto` (las opciones cambian según el segmento) · `?linea=Salud`
+`?oferta` (botón "Ver oferta de USIL con IA" de la barra lateral, `src/oferta.jsx`: los programas con IA de USIL
+de los tres segmentos en una sola lista, agrupados por línea de carrera o por tema de IA) · `?seg=institutos` · `?seg=posgrado` · `?tipo=Curso%20corto` (las opciones cambian según el segmento) · `?linea=Salud`
 (solo educación continua) · `?view=B` (mapa de ranking, solo educación continua) · `?static` (todo montado y sin
 animaciones, para capturas o PDF).
 

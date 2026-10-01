@@ -15,6 +15,7 @@ import logo from './assets/logo-usil-30.png'
 /* Tres formas de análisis en la misma app; ?seg= las enlaza. 'ec' es la vista histórica y no cambia.
    Las filas de institutos y posgrado (~930) viajan en un chunk aparte: solo se descargan al elegir el segmento. */
 const SegmentView = lazy(() => import('./segmento'))
+const Oferta = lazy(() => import('./oferta'))  // ?oferta: toda la oferta de USIL con IA, los tres segmentos juntos
 const SEGS = [['ec', 'Educación continua'], ['institutos', 'Institutos'], ['posgrado', 'Posgrado']]
 const TIPOS_DE = { ec: TIPOS, institutos: META.institutos.tipos, posgrado: META.posgrado.tipos }
 const opts = seg => ['Todos', ...TIPOS_DE[seg]]
@@ -67,6 +68,7 @@ export default function App() {
   const q = new URLSearchParams(location.search)  // ?seg=institutos&tipo=Curso%20corto&view=B&linea=Salud para enlaces directos y capturas
   const seg0 = SEGS.some(([k]) => k === q.get('seg')) ? q.get('seg') : 'ec'
   const [seg, setSeg] = useState(seg0)
+  const [oferta, setOferta] = useState(q.has('oferta'))
   const [tipo, setTipo] = useState(opts(seg0).includes(q.get('tipo')) ? q.get('tipo') : 'Todos')
   const [view, setView] = useState(q.get('view') === 'B' ? 'B' : 'A')
   const [lin, setLin] = useState(LINEA_OPTS.includes(q.get('linea')) ? q.get('linea') : LINEA_GENERAL)
@@ -77,17 +79,20 @@ export default function App() {
 
   // el segmento y la línea activos viven en la URL para que el enlace sea compartible
   useEffect(() => {
-    document.title = seg === 'ec' ? 'IA en educación continua: USIL frente al mercado'
+    document.title = oferta ? 'Oferta de USIL con IA'
+      : seg === 'ec' ? 'IA en educación continua: USIL frente al mercado'
       : `IA en ${seg === 'posgrado' ? 'el posgrado' : 'los institutos'}: ${META[seg].benchmark_largo} frente al mercado`
     const p = new URLSearchParams(location.search)
+    if (oferta) p.set('oferta', '1'); else p.delete('oferta')
     if (seg === 'ec') p.delete('seg'); else p.set('seg', seg)
     if (lin === LINEA_GENERAL || seg !== 'ec') p.delete('linea'); else p.set('linea', lin)
     if (p.get('tipo') !== tipo) p.delete('tipo')  // al cambiar de segmento el filtro vuelve a Todos: el ?tipo= del enlace anterior queda obsoleto
     const s = p.toString()
     history.replaceState(null, '', `${location.pathname}${s ? `?${s}` : ''}${location.hash}`)
-  }, [seg, lin])
+  }, [seg, lin, oferta])
 
-  const cambiarSeg = s => { setSeg(s); setTipo('Todos'); setLin(LINEA_GENERAL); scrollTo({ top: 0 }) }
+  const cambiarSeg = s => { setOferta(false); setSeg(s); setTipo('Todos'); setLin(LINEA_GENERAL); scrollTo({ top: 0 }) }
+  const abrirOferta = () => { setOferta(true); setTipo('Todos'); setLin(LINEA_GENERAL); scrollTo({ top: 0 }) }
 
   // en un segmento nuevo no se calcula nada de educación continua (los hooks no pueden ser condicionales)
   const ec = seg === 'ec'
@@ -113,16 +118,19 @@ export default function App() {
         <ProgressBar />
         <div>
           <div className="bg-white rounded-lg px-4 py-3 max-w-[200px]"><img src={logo} alt="USIL, 30 años. Tu puente al mundo" className="block w-full h-auto" /></div>
-          <div className="font-semibold leading-tight mt-4">{ec ? 'Educación Continua' : meta.benchmark_largo}</div>
-          <div className="text-xs text-white/60 mt-1">Benchmark IA · {ec ? FECHA : meta.fecha}</div>
+          <div className="font-semibold leading-tight mt-4">{oferta ? 'Oferta USIL con IA' : ec ? 'Educación Continua' : meta.benchmark_largo}</div>
+          <div className="text-xs text-white/60 mt-1">{oferta ? 'Los tres segmentos juntos' : `Benchmark IA · ${ec ? FECHA : meta.fecha}`}</div>
         </div>
+        <button onClick={abrirOferta} aria-pressed={oferta} className={`text-left px-3 py-2 rounded text-[13px] font-semibold cursor-pointer transition-colors duration-150 border ${oferta ? 'bg-gold text-usil-deep border-gold' : 'bg-transparent text-gold border-gold hover:bg-gold hover:text-usil-deep'}`}>Ver oferta de USIL con IA</button>
         {/* Selector de segmento: tres formas de análisis sobre la misma app */}
         <div>
           <div className="text-[11px] uppercase tracking-wide text-white/50 mb-2">Segmento</div>
           <div className="flex flex-col gap-1">
-            {SEGS.map(([k, t]) => <button key={k} onClick={() => cambiarSeg(k)} aria-pressed={seg === k} className={`text-left px-2.5 py-1.5 rounded text-[13px] cursor-pointer transition-colors duration-150 ${seg === k ? 'bg-white text-usil-deep font-semibold' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>{t}</button>)}
+            {SEGS.map(([k, t]) => <button key={k} onClick={() => cambiarSeg(k)} aria-pressed={!oferta && seg === k} className={`text-left px-2.5 py-1.5 rounded text-[13px] cursor-pointer transition-colors duration-150 ${!oferta && seg === k ?'bg-white text-usil-deep font-semibold' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>{t}</button>)}
           </div>
         </div>
+        {/* la vista de oferta no lleva filtros: lista todo lo de USIL con IA */}
+        {!oferta && <>
         {ficha && <div>
           <div className="text-[13px] font-semibold leading-snug">{lin}</div>
           <button onClick={() => setLin(LINEA_GENERAL)} className="mt-2 p-0 bg-transparent border-0 text-[13px] text-white/70 hover:text-white underline cursor-pointer">← Volver a General</button>
@@ -140,10 +148,12 @@ export default function App() {
             {LINEA_OPTS.map(o => <option key={o} value={o} className="bg-white text-ink font-normal">{o}</option>)}
           </select>
         </div>}
+        </>}
       </aside>
 
       <main className="px-5 lg:px-10 py-8 max-w-[1180px] w-full min-w-0 overflow-x-clip">
-        {!ec ? <Suspense fallback={<div className="h-dvh" />}><SegmentView key={seg} seg={seg} tipo={tipo} /></Suspense>
+        {oferta ? <Suspense fallback={<div className="h-dvh" />}><Oferta /></Suspense>
+          : !ec ? <Suspense fallback={<div className="h-dvh" />}><SegmentView key={seg} seg={seg} tipo={tipo} /></Suspense>
           : ficha ? <Ficha key={lin} d={ficha} tipo={tipo} /> : <>
         <motion.h1 className="text-[34px] lg:text-[40px] leading-[1.1] text-usil-deep m-0 mb-1" initial={CH.ANIM ? { opacity: 0, y: 12 } : false} animate={{ opacity: 1, y: 0 }} transition={{ duration: CH.ANIM ? 0.6 : 0 }}>IA en la educación continua: USIL frente al mercado</motion.h1>
         <p className="text-xs text-muted m-0 mb-6">USIL · UPC · PUCP · ULima · UTEC · Continental{tipo !== 'Todos' ? ` · filtro: ${tipo}` : ''}</p>
